@@ -13,7 +13,7 @@ from pyrogram.errors import UsernameNotOccupied, RPCError, AuthKeyUnregistered, 
 
 from database.db import database
 from FLiX.strings import strings
-from config import API_ID, API_HASH, DUMP_CHAT_ID, FSUB_ID, FSUB_INV_LINK, LOGS_CHAT_ID, TOKEN_MODE
+from config import API_ID, API_HASH, Session_String, DUMP_CHAT_ID, FSUB_ID, FSUB_INV_LINK, LOGS_CHAT_ID, TOKEN_MODE
 
 logger = logging.getLogger(__name__)
 
@@ -481,6 +481,47 @@ async def save(client: Client, message: Message):
         )
         return
 
+    if "t.me/joinchat/" in message.text or "t.me/+" in message.text:
+        try:
+            if not Session_String:
+                await client.send_message(message.chat.id, f"❌ **String Session is not Set Yet.**", reply_to_message_id=message.id)
+                return
+            acc = Client("shared_session", session_string=Session_String, api_hash=API_HASH, api_id=API_ID)
+            await acc.connect()
+
+            # Extract chat link
+            chat_link = message.text.split()[-1]
+
+            # Try joining the chat
+            try:
+                await acc.join_chat(chat_link)
+                await client.send_message(
+                    chat_id=message.chat.id,
+                    text="✅ **Successfully joined the chat!**",
+                    reply_to_message_id=message.id,
+                )
+            except UserAlreadyParticipant:
+                await client.send_message(
+                    chat_id=message.chat.id,
+                    text="✅ **I am already a member of this chat!**",
+                    reply_to_message_id=message.id,
+                )
+            except Exception as e:
+                await client.send_message(
+                    chat_id=message.chat.id,
+                    text=f"❌ **Failed to join the chat:** {e}",
+                    reply_to_message_id=message.id,
+                )
+
+            await acc.disconnect()
+        except Exception as e:
+            await client.send_message(
+                chat_id=message.chat.id,
+                text=f"❌ **Unexpected error:** {e}",
+                reply_to_message_id=message.id,
+            )
+        return
+
     if "https://t.me/" in message.text:
         datas = message.text.split("/")
         temp = datas[-1].replace("?single","").split("-")
@@ -593,65 +634,23 @@ async def save(client: Client, message: Message):
             
             # Private
             if "https://t.me/c/" in message.text:
-                user_data = await database.sessions.find_one({'user_id': message.from_user.id})
-                if not get(user_data, 'logged_in', False) or user_data['session'] is None:
-                    await client.send_message(message.chat.id, strings['need_login'], reply_to_message_id=message.id)
-                    await database.users.update_one({'user_id': message.from_user.id}, {'$set': {'last_download_time': None, 'active_batch': False}})
-                    break
-
                 try:
-                    acc = Client(
-                        name=f"session_{message.from_user.id}",
-                        session_string=user_data['session'],
-                        api_id=API_ID,
-                        api_hash=API_HASH,
-                        device_model="𝗙𝗟𝗶𝗫 𝗕𝗼𝘁 🚀",
-                        app_version="ꜱʀʙ 2.0",
-                        system_version="𝗙𝗟𝗶𝗫 𝗖𝗹𝗼𝘂𝗱 ⚡️",
-                        lang_code="en"
-                    )
+                    acc = Client("shared_session", session_string=Session_String, api_hash=API_HASH, api_id=API_ID)
                     await acc.connect()
-                    me = await acc.get_me()
                     chatid = int("-100" + datas[4])
+                    try:
+                        await acc.get_chat(chat_id)
+                    except Exception as e:
+                        await client.send_message(
+                            message.chat.id,
+                            f"🚫 **Access Denied or Chat Not Found.**\n`{e}`",
+                            reply_to_message_id=message.id
+                        )
+                        break
                     was_cancelled = await handle_private(client, acc, message, chatid, msgid)
-
                 except (AuthKeyUnregistered, SessionExpired) as e:
                     await database.users.update_one({'user_id': message.from_user.id}, {'$set': {'active_batch': False}})
-                    await database.sessions.update_one({'user_id': message.from_user.id}, {'$set': {'logged_in': False, 'session': None}})
-                    await client.send_message(message.chat.id, "❌ **Your session is invalid or expired.\nPlease /login again.**", reply_to_message_id=message.id)
-                    break
-                except Exception as e:
-                    await client.send_message(message.chat.id, f"⚠️**Error:** {e}", reply_to_message_id=message.id)
-                    await database.users.update_one({'user_id': message.from_user.id}, {'$set': {'last_download_time': None}})
-
-
-            elif "https://t.me/b/" in message.text:
-                user_data = await database.sessions.find_one({'user_id': message.from_user.id})
-                if not get(user_data, 'logged_in', False) or user_data['session'] is None:
-                    await client.send_message(message.chat.id, strings['need_login'], reply_to_message_id=message.id)
-                    await database.users.update_one({'user_id': message.from_user.id}, {'$set': {'last_download_time': None, 'active_batch': False}})
-                    break
-
-                try:
-                    acc = Client(
-                        name=f"session_{message.from_user.id}",
-                        session_string=user_data['session'],
-                        api_id=API_ID,
-                        api_hash=API_HASH,
-                        device_model="𝗙𝗟𝗶𝗫 𝗕𝗼𝘁 🚀",
-                        app_version="ꜱʀʙ 2.0",
-                        system_version="𝗙𝗟𝗶𝗫 𝗖𝗹𝗼𝘂𝗱 ⚡️",
-                        lang_code="en"
-                    )
-                    await acc.connect()
-                    me = await acc.get_me()
-                    chatid = datas[4]
-                    was_cancelled = await handle_private(client, acc, message, chatid, msgid)
-                    
-                except (AuthKeyUnregistered, SessionExpired) as e:
-                    await database.users.update_one({'user_id': message.from_user.id}, {'$set': {'last_download_time': None, 'active_batch': False}})
-                    await database.sessions.update_one({'user_id': message.from_user.id}, {'$set': {'logged_in': False, 'session': None}})
-                    await client.send_message(message.chat.id, "❌ **Your session is invalid or expired.\nPlease /login again.**", reply_to_message_id=message.id)
+                    await client.send_message(message.chat.id, f"❌ **Your session is invalid or expired.\nPlease Tell Owner To Update Session.**", reply_to_message_id=message.id)
                     break
                 except Exception as e:
                     await client.send_message(message.chat.id, f"⚠️**Error:** {e}", reply_to_message_id=message.id)
@@ -677,7 +676,7 @@ async def save(client: Client, message: Message):
 
                     #Thumbnail
                     if custom_thumb and os.path.exists(custom_thumb):
-                        raise ValueError("Custom thumbnail Exists, Need To login.")  # Force exception
+                        raise ValueError("Custom thumbnail Exists, Need To Use Handle_Private.")  # Force exception
 
                     #Custom Words
                     caption = msg.caption or ""
@@ -706,29 +705,21 @@ async def save(client: Client, message: Message):
 
                 except:
                     try:    
-                        user_data = await database.sessions.find_one({"user_id": message.from_user.id})
-                        if not get(user_data, 'logged_in', False) or user_data['session'] is None:
-                            await client.send_message(message.chat.id, strings['need_login'], reply_to_message_id=message.id)
-                            await database.users.update_one({'user_id': message.from_user.id}, {'$set': {'last_download_time': None, 'active_batch': False}})
-                            return
-
-                        acc = Client(
-                            name=f"session_{message.from_user.id}",
-                            session_string=user_data['session'],
-                            api_id=API_ID,
-                            api_hash=API_HASH,
-                            device_model="𝗙𝗟𝗶𝗫 𝗕𝗼𝘁 🚀",
-                            app_version="ꜱʀʙ 2.0",
-                            system_version="𝗙𝗟𝗶𝗫 𝗖𝗹𝗼𝘂𝗱 ⚡️",
-                            lang_code="en"
-                        )
+                        acc = Client("saverestricted", session_string=user_data['session'], api_hash=API_HASH, api_id=API_ID)
                         await acc.connect()
-                        me = await acc.get_me()
+                        try:
+                            await acc.get_chat(chat_id)
+                        except Exception as e:
+                            await client.send_message(
+                                message.chat.id,
+                                f"🚫 **Access Denied or Chat Not Found.**\n`{e}`",
+                                reply_to_message_id=message.id
+                            )
+                            break
                         was_cancelled = await handle_private(client, acc, message, username, msgid)
                     except (AuthKeyUnregistered, SessionExpired) as e:
-                        await database.users.update_one({'user_id': message.from_user.id}, {'$set': {'last_download_time': None, 'active_batch': False}})
-                        await database.sessions.update_one({'user_id': message.from_user.id}, {'$set': {'logged_in': False, 'session': None}})
-                        await client.send_message(message.chat.id, "❌ **Your session is invalid or expired.\nPlease /login again.**", reply_to_message_id=message.id)
+                        await database.users.update_one({'user_id': message.from_user.id}, {'$set': {'active_batch': False}})
+                        await client.send_message(message.chat.id, f"❌ **Your session is invalid or expired.\nPlease Tell Owner To Update Session.**", reply_to_message_id=message.id)
                         break
                     except Exception as e:
                         await client.send_message(message.chat.id, f"⚠️**Error:** {e}", reply_to_message_id=message.id)
