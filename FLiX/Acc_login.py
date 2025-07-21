@@ -8,7 +8,7 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.errors import (
     PhoneNumberInvalid, PhoneCodeInvalid, PhoneCodeExpired,
     SessionPasswordNeeded, PasswordHashInvalid,
-    FloodWait, PhoneNumberBanned, ListenerTimeout
+    FloodWait, PhoneNumberBanned
 )
 
 from database.db import database
@@ -298,7 +298,7 @@ async def ask_user(
                 filters=filters.user(user_id) & filters.text,
                 timeout=timeout
             )
-        except (ListenerTimeout, asyncio.TimeoutError):
+        except asyncio.TimeoutError:
             if temp_client:
                 await temp_client.disconnect()
             await bot.send_message(user_id, "⌛ 𝗧𝗶𝗺𝗲𝗼𝘂𝘁! 𝗬𝗼𝘂 𝗱𝗶𝗱𝗻’𝘁 𝗿𝗲𝘀𝗽𝗼𝗻𝗱. 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 /login 𝗮𝗴𝗮𝗶𝗻.", reply_to_message_id=prompt.id)
