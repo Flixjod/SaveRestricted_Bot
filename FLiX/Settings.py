@@ -95,63 +95,63 @@ async def open_settings(client: Client, callback_query):
 # Set Thumbnail Callback
 @Client.on_callback_query(filters.regex(r"^set_thumbnail_\d+$"), group=2)
 async def set_thumbnail_prompt(client: Client, callback_query):
+    user_id = callback_query.from_user.id
+    chat_id = callback_query.message.chat.id
+
     if not await user_check(callback_query, int(callback_query.data.split("_")[-1])):
         return
 
-    await callback_query.answer("✨ 𝙒𝙖𝙞𝙩𝙞𝙣𝙜 𝙁𝙤𝙧 𝙏𝙝𝙪𝙢𝙗𝙣𝙖𝙞𝙡...")
-    await callback_query.message.edit_text(
+    await callback_query.answer("✨ Waiting for thumbnail...")
+    prompt = await callback_query.message.edit_text(
         "**📸 Please send me a photo as a reply to set it as your thumbnail.**",
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("ʙᴀᴄᴋ", callback_data=f"open_settings_{callback_query.from_user.id}")]
+            [InlineKeyboardButton("ʙᴀᴄᴋ", callback_data=f"open_settings_{user_id}")]
         ])
     )
-    
-
-@Client.on_message(filters.photo & filters.reply, group=2)
-async def set_thumbnail(client: Client, message: Message):
-    user_id = message.from_user.id
-    if not message.reply_to_message or not message.reply_to_message.from_user.is_bot or message.reply_to_message.text != "📸 Please send me a photo as a reply to set it as your thumbnail.":
-        return
-        
-    os.makedirs("thumbnails", exist_ok=True)
-    thumb_path = os.path.join("thumbnails", f"{user_id}_thumbnail.jpg")
 
     try:
-        # 1) Download the photo
-        file_path = await client.download_media(message.photo, file_name=thumb_path)
+        # Wait for the reply message from user in same chat with photo
+        response = await client.wait_for_message(
+            chat_id=chat_id,
+            timeout=60,
+            filters=filters.photo & filters.reply & filters.user(user_id)
+        )
 
-        # 2) If the file is larger than 200 KB, resize (no quality reduction, just dimension)
-        if os.path.getsize(file_path) > 200 * 1024:  # 200 KB
+        # Manual check: is it replying to the correct prompt message?
+        if not response.reply_to_message or response.reply_to_message.id != prompt.id:
+            error = await response.reply("⚠️ **Please reply directly to the prompt message.**")
+            await asyncio.sleep(5)
+            await response.delete()
+            await error.delete()
+            await prompt.delete()
+            return
+
+        # ✅ Process the valid photo
+        os.makedirs("thumbnails", exist_ok=True)
+        thumb_path = f"thumbnails/{user_id}_thumbnail.jpg"
+        file_path = await client.download_media(response.photo, file_name=thumb_path)
+
+        if os.path.getsize(file_path) > 200 * 1024:
             resized_path = file_path.replace(".jpg", "_resized.jpg")
             compress_img(file_path, resized_path, target_width=320)
-
-            # Replace the original with the resized one
             os.remove(file_path)
             os.rename(resized_path, file_path)
 
-        # 3) Save the final path in the database
         await database.users.update_one(
             {'user_id': user_id},
             {'$set': {'settings.thumbnail': file_path}},
             upsert=True
         )
-        
-        if message.reply_to_message and message.reply_to_message.from_user.is_bot:
-            await message.reply_to_message.edit_text(
-                "✅ **Thumbnail has been set successfully!**",
-                reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("ʙᴀᴄᴋ", callback_data=f"open_settings_{user_id}")]
-                ])
-            )
-        else:
-            await message.reply(
-                "✅ **Thumbnail has been set successfully!**",
-                reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("ʙᴀᴄᴋ", callback_data=f"open_settings_{user_id}")]
-                ])
-            )
-    except Exception as e:
-        await message.reply(f"**⚠️ Error setting thumbnail: {e}**")
+
+        await prompt.edit_text(
+            "✅ **Thumbnail has been set successfully!**",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("ʙᴀᴄᴋ", callback_data=f"open_settings_{user_id}")]
+            ])
+        )
+
+    except asyncio.TimeoutError:
+        await prompt.edit_text("⌛ **Timeout! You didn’t send a photo in time. Please try again.**")
 
 
 # Remove Thumbnail Callback
