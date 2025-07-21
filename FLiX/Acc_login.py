@@ -293,10 +293,10 @@ async def ask_user(
         )
 
         try:
-            response = await bot.listen(
+            response = await bot.wait_for_message(
                 chat_id=user_id,
-                filters=filters.user(user_id) & filters.text,
-                timeout=timeout
+                timeout=timeout,
+                filters=filters.user(user_id) & filters.text
             )
         except asyncio.TimeoutError:
             if temp_client:
