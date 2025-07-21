@@ -308,10 +308,10 @@ async def upgrade_to_premium(client, message):
                 reply_markup=ReplyKeyboardMarkup([["♻️ 𝗥𝗲𝘀𝗲𝘁", "❌ 𝗖𝗮𝗻𝗰𝗲𝗹"]], one_time_keyboard=True, resize_keyboard=True),
             )
             try:
-                response: Message = await client.listen(
+                response: Message = await client.wait_for_message(
                     chat_id=message.chat.id,
-                    filters=filters.chat(message.chat.id) & filters.user(message.from_user.id) & filters.text,
-                    timeout=75
+                    timeout=75,
+                    filters=filters.text & filters.user(message.from_user.id)
                 )
             except asyncio.TimeoutError:
                 await client.delete_messages(message.chat.id, [confirm.id])
@@ -355,10 +355,10 @@ async def upgrade_to_premium(client, message):
                 reply_markup=ReplyKeyboardMarkup([["♻️ 𝗥𝗲𝘀𝗲𝘁", "⏩ 𝗘𝘅𝘁𝗲𝗻𝗱"], ["❌ 𝗖𝗮𝗻𝗰𝗲𝗹"]], one_time_keyboard=True, resize_keyboard=True),
             )
             try:
-                response: Message = await client.listen(
+                response: Message = await client.wait_for_message(
                     chat_id=message.chat.id,
-                    filters=filters.chat(message.chat.id) & filters.user(message.from_user.id) & filters.text,
-                    timeout=75
+                    timeout=75,
+                    filters=filters.text & filters.user(message.from_user.id)
                 )
             except asyncio.TimeoutError:
                 await client.delete_messages(message.chat.id, [confirm.id])
