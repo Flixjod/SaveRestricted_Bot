@@ -92,7 +92,7 @@ async def set_plan(client, message):
                     timeout=75,
                     filters=filters.text & filters.user(message.from_user.id)
                 )
-            except Exception:
+            except asyncio.TimeoutError:
                 await prompt.delete()
                 return await client.send_message(
                     message.chat.id,
