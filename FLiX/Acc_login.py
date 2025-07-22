@@ -4,6 +4,7 @@
 import re, asyncio, traceback
 
 from pyrogram import Client, filters
+from pyrogram.enums import ChatAction
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.errors import (
     PhoneNumberInvalid, PhoneCodeInvalid, PhoneCodeExpired,
@@ -285,7 +286,7 @@ async def ask_user(
 ) -> str | None:
 
     while True:
-        await bot.send_chat_action(user_id, "typing")
+        await bot.send_chat_action(user_id, ChatAction.TYPING)
         prompt = await bot.send_message(
             chat_id=user_id,
             text=text,
