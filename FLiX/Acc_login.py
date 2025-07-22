@@ -20,6 +20,8 @@ SESSION_STRING_SIZE = 351
 
 @Client.on_message(filters.command("logout") & filters.private, group=1)
 async def logout_acc(client: Client, message: Message):
+    user_id = message.from_user.id
+
     if not await is_member(Client, user_id):
         return await Client.send_message(
             chat_id=user_id,
@@ -30,7 +32,7 @@ async def logout_acc(client: Client, message: Message):
             reply_to_message_id=message.id
         )
 
-    user_data = await database.sessions.find_one({"user_id": message.chat.id})
+    user_data = await database.sessions.find_one({"user_id": user_id})
     if user_data is None or not user_data.get('logged_in', False):
         await client.send_message(chat_id=message.chat.id, text="**⚠️ You are not logged in! Please /login first.**", reply_to_message_id=message.id)
         return
@@ -311,7 +313,6 @@ async def ask_user(
         if validate and not validate(user_input):
             if invalid_text:
                 await bot.send_message(user_id, invalid_text, reply_to_message_id=response.id)
-            continue
 
         await bot.delete_messages(user_id, [prompt.id, response.id])
         return user_input
