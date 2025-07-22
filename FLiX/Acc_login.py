@@ -169,8 +169,7 @@ async def login_acc(client: Client, message: Message):
         )
         if not otp_code:
             return
-        otp_code = re.sub(r'\D', '', otp_code)
-        otp_code = " ".join(otp_code)
+        otp_code = " ".join(re.sub(r'\D', '', otp_code))
 
         try:
             await temp_client.sign_in(phone_number, code.phone_code_hash, otp_code)
