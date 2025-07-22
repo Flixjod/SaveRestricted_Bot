@@ -178,7 +178,7 @@ async def login_acc(bot: Client, message: Message):
             user_id=user_id,
             text=otp_prompt,
             reply_to=message.id,
-            validate=lambda x: re.fullmatch(r'^\d{5,6}$') or re.fullmatch(r'^(\d\s+){4,5}\d$', x),
+            validate = lambda x: re.fullmatch(r'\d{5,6}', x) or re.fullmatch(r'(?:\d\s+){4,5}\d', x)
             invalid_text="❌ **OTP must contain digits only.** Please try again.",
             temp_client=temp_client
         )
