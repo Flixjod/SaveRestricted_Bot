@@ -161,24 +161,21 @@ async def login_acc(bot: Client, message: Message):
         return await bot.send_message(user_id, f'❌ **Error while sending code:** `{e}`', reply_to_message_id=message.id)
 
     # Step 2: Ask for OTP with retry and number shown
-    attempts = 3
-    otp_code = None
-    while attempts > 0:
+    while True:
         otp_prompt = (
             f"🔑 **Almost There!**\n\n"
             f"📞 **Phone:** `{phone_number}`\n\n"
             f"Enter the **OTP** you received on Telegram for this number.\n"
             f"💡 <i>Example:</i> `1 2 3 4 5`\n"
-            f"🚫 You can cancel anytime with /cancel.\n\n"
-            f"🕓 Attempts left: {attempts}"
+            f"🚫 You can cancel anytime with /cancel."
         )
-
+    
         otp_code = await ask_user(
             bot=bot,
             user_id=user_id,
             text=otp_prompt,
             reply_to=message.id,
-            validate = lambda x: re.fullmatch(r'\d{5,6}', x) or re.fullmatch(r'(?:\d\s+){4,5}\d', x)
+            validate=lambda x: re.fullmatch(r'\d{5,6}', x) or re.fullmatch(r'(?:\d\s+){4,5}\d', x),
             invalid_text="❌ **OTP must contain digits only.** Please try again.",
             temp_client=temp_client
         )
@@ -192,11 +189,7 @@ async def login_acc(bot: Client, message: Message):
             await temp_client.sign_in(phone_number, code.phone_code_hash, otp_code)
             break
         except PhoneCodeInvalid:
-            attempts -= 1
-            if attempts == 0:
-                await temp_client.disconnect()
-                return await bot.send_message(user_id, "❌ **Too many invalid OTP attempts.** Please try /login again.", reply_to_message_id=message.id)
-            await bot.send_message(user_id, "❌ **Invalid OTP.** Please try again.")
+            await bot.send_message(user_id, "❌ **Invalid OTP.** Please try again.", reply_to_message_id=message.id)
         except PhoneCodeExpired:
             await temp_client.disconnect()
             return await bot.send_message(user_id, "⌛ **OTP expired.** Please try /login again.", reply_to_message_id=message.id)
