@@ -110,11 +110,13 @@ async def login_acc(client: Client, message: Message):
         user_id=user_id,
         text=phone_prompt,
         reply_to=message.id,
-        validate=lambda x: re.fullmatch(r'^\+\d{7,15}$', x),
+        validate=lambda x: re.fullmatch(r'^\+?[0-9\s\-\(\)]+$', x),
         invalid_text="❌ **Oops! That doesn't look like a valid phone number.**\n\n📌 Example: `+12345678901`"
     )
     if not phone_number:
         return
+
+    phone_number = '+' + re.sub(r'\D', '', phone_number)
 
     # Create new temp client for login
     temp_client = Client(
