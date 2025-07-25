@@ -354,14 +354,14 @@ async def generate_token(client: Client, message: Message):
     return await client.send_message(
         chat_id=message.chat.id,
         text=(
-            "🔐 **Premium Token Generated!**\n\n"
+            "🔐 **Verify Token Generated!**\n\n"
             f"🎁 **Access Duration:** `{TOKEN_DURATION} hour(s)`\n"
             f"⏳ **Token Validity:** `30 minutes`\n"
             f"⚠️ **One-time use only**\n\n"
-            "🚀 Click below to activate your premium access 👇"
+            "🔥 Click below to unlock your premium access 👇"
         ),
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("✅ 𝗔𝗰𝘁𝗶𝘃𝗲 𝗧𝗼𝗸𝗲𝗻", url=short_url)],
+            [InlineKeyboardButton("🚀 𝗩𝗲𝗿𝗶𝗳𝘆 𝗧𝗼𝗸𝗲𝗻", url=short_url)],
         ]),
         disable_web_page_preview=True,
         reply_to_message_id=message.id
@@ -769,7 +769,7 @@ async def check_plan(client: Client, message: Message):
             )
         )
         return
-    
+
     premium_started = plan_data.get("started_at")
     premium_expiration = plan_data.get("expiration_at")
     plan_name = plan_data.get("preset") or "Custom"
