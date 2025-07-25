@@ -90,6 +90,9 @@ async def send_start(client: Client, message: Message):
         if param.lower() == "buy":
             return await buy_plans(client, message)
 
+        if param.lower() == "verify":
+            return async def generate_token(client: Client, message: Message):
+
         if param.startswith("token_"):
             if not TOKEN_MODE:
                 return await client.send_message(
