@@ -276,7 +276,7 @@ async def shorten_link(deep_url: str) -> str:
 
 
 # Token
-@Client.on_message(filters.command("token") & filters.private, group=0)
+@Client.on_message(filters.command("token"), group=0)
 async def generate_token(client: Client, message: Message):
     user_id = message.from_user.id
     user = await database.users.find_one({"user_id": user_id})
