@@ -136,7 +136,10 @@ async def send_start(client: Client, message: Message):
                 if used_by == user_id:
                     return await client.send_message(
                         message.chat.id,
-                        "🔒 **Oops! This Token's Already Been Used.**\n\nEach token is like a golden ticket — **one-time use only!** 🎟️✨",
+                        "🚫 **Token Already Claimed!**\n\n"
+                        "You've already used this token yourself.\n"
+                        "🎟️ Tokens are **single-use only**, like golden tickets!\n\n"
+                        "✨ Need access again? Just grab a fresh one using **/token**.",
                         reply_to_message_id=message.id
                     )
                 else:
