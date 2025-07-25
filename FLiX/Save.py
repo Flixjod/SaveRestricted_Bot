@@ -504,11 +504,10 @@ async def save(client: Client, message: Message):
                 "✨ Upgrade to **Premium** to unlock:\n"
                 "• Batch downloads\n"
                 "• Faster speeds\n"
-                "• Priority support & more!\n"
+                "• Priority support & more!\n\n"
             )
             if TOKEN_MODE:
-                msg += "\n🎁 Get **Free Premium Access** with /token – limited time only!"
-
+                msg += "🎁 Use `/token` to **verify your premium token** and unlock full access – *limited time only!*""
 
             await client.send_message(
                 chat_id=message.chat.id,
@@ -539,10 +538,10 @@ async def save(client: Client, message: Message):
                     "As a free user, you need to wait **5 minutes** between downloads.\n\n"
                     f"⏳ *Time Left:* `{int(remaining_minutes)} min {int(remaining_seconds)} sec`\n\n"
                     "⚡ Want instant access with *no waiting*?\n"
-                    "Upgrade to Premium and enjoy unlimited freedom!"
+                    "Upgrade to Premium and enjoy unlimited freedom!\n\n"
                 )
                 if TOKEN_MODE:
-                    msg += "\n\n🎁 Use `/token` for **Free Premium Access** – limited time only!"
+                    msg += "🎁 Use `/token` to **verify your premium token** and unlock full access – *limited time only!*""
 
                 await client.send_message(
                     chat_id=message.chat.id,
