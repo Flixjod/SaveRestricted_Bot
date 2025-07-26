@@ -11,7 +11,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 
 from database.db import database
 from FLiX.strings import HELP_TXT
-from config import Start_IMG, FSUB_ID, FSUB_INV_LINK, TOKEN_MODE, TOKEN_API_URL, TOKEN_API_KEY, TOKEN_DURATION
+from config import Start_IMG, FSUB_ID, FSUB_INV_LINK
 from FLiX.Save import Check_Plan, is_member, format_duration
 
 logger = logging.getLogger(__name__)
@@ -94,7 +94,8 @@ async def send_start(client: Client, message: Message):
             return async def generate_token(client: Client, message: Message):
 
         if param.startswith("token_"):
-            if not TOKEN_MODE:
+            config = await database.config.find_one({"key": "Token_Info"}) or {}
+            if not config.get("token_mode", False):
                 return await client.send_message(
                     message.chat.id,
                     "🚫 **Token-based access is currently disabled.**",
@@ -280,6 +281,7 @@ async def shorten_link(deep_url: str) -> str:
 async def generate_token(client: Client, message: Message):
     user_id = message.from_user.id
     user = await database.users.find_one({"user_id": user_id})
+    config = await database.config.find_one({"key": "Token_Info"}) or {}
 
     # 🔒 Force subscription check
     if not await is_member(client, user_id):
@@ -291,7 +293,7 @@ async def generate_token(client: Client, message: Message):
         )
 
     # 🚫 Token system disabled
-    if not TOKEN_MODE:
+    if not config.get("token_mode", False):
         return await client.send_message(
             message.chat.id,
             "**🚫 Token-based access is currently disabled.**",
