@@ -1782,25 +1782,24 @@ async def token_auth_command(client, message):
     if not await check_owner(client, message):
         return await message.reply("🚫 You're not authorized to use this.")
 
-    config_key = {"key": "Token_Auth_Group"}
-    config = await database.config.find_one(config_key)
+    config = await database.config.find_one({"key": "Token_Info"}) or {}
 
     # Set default config if not found
     if not config:
         config = {
-            "key": "Token_Auth_Group",
-            "mode": False,
-            "auth_group_mode": False,
+            "key": "Token_Info",
+            "token_mode": False,
             "api_url": "https://arolinks.com/api",
             "api_key": "e425c537944dc2fe1fe0b824e2fb5748ba1be914",
+            "auth_group_mode": False,
             "group_id": "❌ Not Set",
             "invite_link": "❌ Not Set"
         }
         await database.config.insert_one(config)
 
-    mode = config.get("mode", False)
-    api_url = config.get("api_url", TOKEN_API_URL)
-    api_key = config.get("api_key", TOKEN_API_KEY)
+    mode = config.get("token_mode", True)
+    api_url = config.get("api_url", "https://arolinks.com/api")
+    api_key = config.get("api_key", "e425c537944dc2fe1fe0b824e2fb5748ba1be914")
     auth_mode = config.get("auth_group_mode", False)
     group_id = config.get("group_id", "❌ Not Set")
     invite_link = config.get("invite_link", "❌ Not Set")
@@ -1845,7 +1844,6 @@ async def token_auth_command(client, message):
 async def token_auth_callback(client, callback):
     user_id = callback.from_user.id
     action = callback.data.split("_", 1)[1]
-    config_key = {"key": "Token_Auth_Group"}
     msg = callback.message
 
     # ✅ Owner-only access
@@ -1853,13 +1851,13 @@ async def token_auth_callback(client, callback):
         return await callback.answer("🚫 Not allowed", show_alert=True)
 
     # Fetch config or fallback
-    config = await database.config.find_one(config_key) or {}
+    config = await database.config.find_one({"key": "Token_Info"}) or {}
 
     async def update_panel():
         updated = await database.config.find_one(config_key) or {}
         mode = updated.get("mode", False)
-        api_url = updated.get("api_url", TOKEN_API_URL)
-        api_key = updated.get("api_key", TOKEN_API_KEY)
+        api_url = updated.get("api_url", "https://arolinks.com/api")
+        api_key = updated.get("api_key", "e425c537944dc2fe1fe0b824e2fb5748ba1be914")
         auth_mode = updated.get("auth_group_mode", False)
         group_id = updated.get("group_id", "❌ Not Set")
         invite_link = updated.get("invite_link", "❌ Not Set")
