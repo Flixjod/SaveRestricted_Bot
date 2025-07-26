@@ -1776,6 +1776,204 @@ async def user_stats(client, message):
 
 
 
+# Token Info
+@Client.on_message(filters.command("token_auth") & filters.private)
+async def token_auth_command(client, message):
+    if not await check_owner(client, message):
+        return await message.reply("🚫 You're not authorized to use this.")
+
+    config_key = {"key": "Token_Auth_Group"}
+    config = await database.config.find_one(config_key)
+
+    # Set default config if not found
+    if not config:
+        config = {
+            "key": "Token_Auth_Group",
+            "mode": False,
+            "auth_group_mode": False,
+            "api_url": "https://arolinks.com/api",
+            "api_key": "e425c537944dc2fe1fe0b824e2fb5748ba1be914",
+            "group_id": "❌ Not Set",
+            "invite_link": "❌ Not Set"
+        }
+        await database.config.insert_one(config)
+
+    mode = config.get("mode", False)
+    api_url = config.get("api_url", TOKEN_API_URL)
+    api_key = config.get("api_key", TOKEN_API_KEY)
+    auth_mode = config.get("auth_group_mode", False)
+    group_id = config.get("group_id", "❌ Not Set")
+    invite_link = config.get("invite_link", "❌ Not Set")
+
+    try:
+        group_name = (await client.get_chat(group_id)).title if isinstance(group_id, int) else "❓ Unknown"
+    except:
+        group_name = "❓ Unknown"
+
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton(f"🔘 Mode: {'✅ ON' if mode else '🚫 OFF'}", callback_data="TA_toggle_mode")],
+        [
+            InlineKeyboardButton("🌐 Set API URL", callback_data="TA_set_api_url"),
+            InlineKeyboardButton("🔑 Set API Key", callback_data="TA_set_api_key"),
+        ],
+        [InlineKeyboardButton(f"🛡 Auth Group: {'✅ ON' if auth_mode else '🚫 OFF'}", callback_data="TA_toggle_auth")],
+        [
+            InlineKeyboardButton("🆔 Set Group ID", callback_data="TA_set_group_id"),
+            InlineKeyboardButton("🔗 Set Invite Link", callback_data="TA_set_invite_link"),
+        ]
+    ])
+
+    await client.send_message(
+        chat_id=message.chat.id,
+        text=(
+            f"🛠️ **Token Auth Configuration Panel**\n\n"
+            f"🔘 **Token Mode:** {'✅ ON' if mode else '🚫 OFF'}\n"
+            f"🌐 **API URL:** `{api_url}`\n"
+            f"🔑 **API Key:** `{api_key}`\n\n"
+            f"🛡 **Auth Group Mode:** {'✅ ON' if auth_mode else '🚫 OFF'}\n"
+            f"📛 **Group Name:** `{group_name}`\n"
+            f"🆔 **Group ID:** `{group_id}`\n"
+            f"🔗 **Invite Link:** {invite_link}"
+        ),
+        reply_markup=keyboard,
+        reply_to_message_id=message.id if not message.reply_to_message else message.reply_to_message.message_id,
+        disable_web_page_preview=True
+    )
+
+
+@Client.on_callback_query(filters.regex(r"^TA_(.+)"), group=3)
+async def token_auth_callback(client, callback):
+    user_id = callback.from_user.id
+    action = callback.data.split("_", 1)[1]
+    config_key = {"key": "Token_Auth_Group"}
+    msg = callback.message
+
+    # ✅ Owner-only access
+    if not await check_owner(client, callback.message):
+        return await callback.answer("🚫 Not allowed", show_alert=True)
+
+    # Fetch config or fallback
+    config = await database.config.find_one(config_key) or {}
+
+    async def update_panel():
+        updated = await database.config.find_one(config_key) or {}
+        mode = updated.get("mode", False)
+        api_url = updated.get("api_url", TOKEN_API_URL)
+        api_key = updated.get("api_key", TOKEN_API_KEY)
+        auth_mode = updated.get("auth_group_mode", False)
+        group_id = updated.get("group_id", "❌ Not Set")
+        invite_link = updated.get("invite_link", "❌ Not Set")
+
+        try:
+            group_name = (await client.get_chat(group_id)).title if isinstance(group_id, int) else "❓ Unknown"
+        except:
+            group_name = "❓ Unknown"
+
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton(f"🔘 Mode: {'✅ ON' if mode else '🚫 OFF'}", callback_data="TA_toggle_mode")],
+            [
+                InlineKeyboardButton("🌐 Set API URL", callback_data="TA_set_api_url"),
+                InlineKeyboardButton("🔑 Set API Key", callback_data="TA_set_api_key"),
+            ],
+            [InlineKeyboardButton(f"🛡 Auth Group: {'✅ ON' if auth_mode else '🚫 OFF'}", callback_data="TA_toggle_auth")],
+            [
+                InlineKeyboardButton("🆔 Set Group ID", callback_data="TA_set_group_id"),
+                InlineKeyboardButton("🔗 Set Invite Link", callback_data="TA_set_invite_link"),
+            ]
+        ])
+
+        await msg.edit_text(
+            f"🛠️ **Token Auth Configuration Panel**\n\n"
+            f"🔘 **Token Mode:** {'✅ ON' if mode else '🚫 OFF'}\n"
+            f"🌐 **API URL:** `{api_url}`\n"
+            f"🔑 **API Key:** `{api_key}`\n\n"
+            f"🛡 **Auth Group Mode:** {'✅ ON' if auth_mode else '🚫 OFF'}\n"
+            f"📛 **Group Name:** `{group_name}`\n"
+            f"🆔 **Group ID:** `{group_id}`\n"
+            f"🔗 **Invite Link:** {invite_link}",
+            reply_markup=keyboard,
+            disable_web_page_preview=True
+        )
+
+    # ✅ Toggle token mode
+    if action == "toggle_mode":
+        await database.config.update_one(config_key, {
+            "$set": {"mode": not config.get("mode", False)}
+        }, upsert=True)
+        await callback.answer("🔄 Token Mode toggled!", show_alert=True)
+
+    # ✅ Toggle auth group mode
+    elif action == "toggle_auth":
+        current = config.get("auth_group_mode", False)
+        await database.config.update_one(config_key, {
+            "$set": {"auth_group_mode": not current}
+        }, upsert=True)
+        await callback.answer(
+            f"🛡 Auth Group Mode {'Enabled ✅' if not current else 'Disabled ❌'}",
+            show_alert=True
+        )
+
+    # ✅ Set new API URL
+    elif action == "set_api_url":
+        ask = await client.send_message(user_id, "🌐 **Send new API URL:**")
+        r = await client.listen(user_id)
+        if r.text.startswith("http"):
+            await database.config.update_one(config_key, {
+                "$set": {"api_url": r.text}
+            }, upsert=True)
+            await callback.answer("✅ API URL Updated!", show_alert=True)
+        else:
+            await callback.answer("❌ Invalid URL!", show_alert=True)
+        await ask.delete()
+        await r.delete()
+
+    # ✅ Set new API Key
+    elif action == "set_api_key":
+        ask = await client.send_message(user_id, "🔑 **Send new API Key:**")
+        r = await client.listen(user_id)
+        await database.config.update_one(config_key, {
+            "$set": {"api_key": r.text}
+        }, upsert=True)
+        await callback.answer("✅ API Key Updated!", show_alert=True)
+        await ask.delete()
+        await r.delete()
+
+    # ✅ Set new Group ID
+    elif action == "set_group_id":
+        ask = await client.send_message(user_id, "🆔 **Send new Group ID:** (starts with -100)")
+        r = await client.listen(user_id)
+        try:
+            group_id = int(r.text)
+            if not str(group_id).startswith("-100"):
+                raise ValueError
+            await database.config.update_one(config_key, {
+                "$set": {"group_id": group_id}
+            }, upsert=True)
+            await callback.answer("✅ Group ID Updated!", show_alert=True)
+        except:
+            await callback.answer("❌ Invalid Group ID!", show_alert=True)
+        await ask.delete()
+        await r.delete()
+
+    # ✅ Set Invite Link
+    elif action == "set_invite_link":
+        ask = await client.send_message(user_id, "🔗 **Send Group Invite Link:**")
+        r = await client.listen(user_id)
+        if r.text.startswith("http"):
+            await database.config.update_one(config_key, {
+                "$set": {"invite_link": r.text}
+            }, upsert=True)
+            await callback.answer("✅ Invite Link Updated!", show_alert=True)
+        else:
+            await callback.answer("❌ Invalid Invite Link!", show_alert=True)
+        await ask.delete()
+        await r.delete()
+
+    # 🔄 Refresh Panel
+    await update_panel()
+
+
+
 async def check_owner(client: Client, message: Message) -> bool:
     if message.from_user.id not in OWNER_ID:
         await client.send_message(
