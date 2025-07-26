@@ -80,6 +80,7 @@ async def Check_Plan(client, user_id):
     try:
         now_utc = datetime.now(timezone.utc)
         user_info = await database.users.find_one({'user_id': user_id})
+        config = await database.config.find_one({"key": "Token_Info"}) or {}
 
         if not user_info:
             return True  # User not found, assume free
@@ -157,7 +158,7 @@ async def Check_Plan(client, user_id):
                     "You've been moved back to the **Free Plan** — fewer features, but you're still awesome! 😎\n\n"
                 )
 
-                if is_token_user and TOKEN_MODE:
+                if is_token_user and config.get("mode", False):
                     expiry_msg += (
                         "🎁 **But hey!** You can still grab a **Free Premium Pass** using **/token** — it's waiting for you (but not forever!). ⏳\n"
                         "✨ Want the full VIP experience with zero limits? Just **upgrade** and unlock all the good stuff!"
@@ -448,6 +449,8 @@ async def stop_handler(client: Client, message: Message):
 # Save Fetch And Forward to You
 @Client.on_message(filters.text & ~filters.regex(r"^/") & (filters.private | filters.group), group=4)
 async def save(client: Client, message: Message):
+    config = await database.config.find_one({"key": "Token_Info"}) or {}
+
     if not await is_member(client, message.from_user.id):
         
         await client.send_message(
@@ -506,7 +509,7 @@ async def save(client: Client, message: Message):
                 "• Faster speeds\n"
                 "• Priority support & more!\n\n"
             )
-            if TOKEN_MODE:
+            if config.get("mode", False):
                 msg += "🎁 Use `/token` to **verify your premium token** and unlock full access – *limited time only!*""
 
             await client.send_message(
@@ -540,7 +543,7 @@ async def save(client: Client, message: Message):
                     "⚡ Want instant access with *no waiting*?\n"
                     "Upgrade to Premium and enjoy unlimited freedom!\n\n"
                 )
-                if TOKEN_MODE:
+                if config.get("mode", False):
                     msg += "🎁 Use `/token` to **verify your premium token** and unlock full access – *limited time only!*""
 
                 await client.send_message(
