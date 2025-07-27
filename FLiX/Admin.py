@@ -1863,9 +1863,6 @@ async def token_auth_callback(client, callback):
     config_key = {"key": "Token_Info"}
     config = await database.config.find_one(config_key) or {}
 
-    if not await check_owner(client, callback.message):
-        return await callback.answer("🚫 Not allowed", show_alert=True)
-
     async def ask_input(prompt: str):
         ask = await client.send_message(user_id, prompt)
         r = await client.listen(user_id)
