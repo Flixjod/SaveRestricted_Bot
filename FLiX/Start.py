@@ -192,6 +192,19 @@ async def send_start(client: Client, message: Message):
             )
 
             exp_str = expiration_at.astimezone(IST).strftime('%d %B %Y - %I:%M %p')
+
+            if config.get("auth_group_mode", False) and config.get("group_id"):
+                try:
+                    await client.send_message(
+                        int(config["group_id"]),
+                        f"🔑 **Token Verified!**\n"
+                        f"👤 [{message.from_user.first_name}](tg://user?id={user_id}) just unlocked **Premium Access** 💎\n"
+                        f"🕒 `{duration}`h • ⏳ Expires: `{exp_str} IST`\n"
+                        f"🌟 Access granted — let the premium journey begin!"
+                    )
+                except Exception as e:
+                    logger.info(f"[Auth Group Notify Error]: {e}")
+
             return await client.send_message(
                 message.chat.id,
                 (
