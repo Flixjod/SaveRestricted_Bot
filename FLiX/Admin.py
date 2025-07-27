@@ -9,7 +9,7 @@ from pyrogram import Client, filters
 from pyrogram.types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.errors import UserIsBlocked, PeerIdInvalid
 
-from config import OWNER_ID
+from config import OWNER_ID, TOKEN_API_URL, TOKEN_API_KEY
 from database.db import database
 from FLiX.Save import format_duration
 
