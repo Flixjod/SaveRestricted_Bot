@@ -452,13 +452,14 @@ async def token_command(client: Client, message: Message):
         # ✅ Inside valid group → Show verify in DM button
         return await client.send_message(
             chat.id,
-            f"👋 Hello {user_name}!\n\n"
-            f"✅ Your **access token has been generated**!\n"
-            f"🔐 To activate it, please **verify yourself in private chat**.\n\n"
-            f"Tap the button below to complete verification:",
+            f"👋 Hey {user_name}!\n\n"
+            f"🎟️ **Ready to unlock Premium?**\n"
+            f"✅ Your personal token is now ready to go!\n\n"
+            f"🔐 Just verify yourself in **private chat** to activate it.\n"
+            f"👇 Tap the button below to continue:",
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton(
-                    "🚀 𝗩𝗲𝗿𝗶𝗳𝘆 𝗬𝗼𝘂𝗿 𝗧𝗼𝗸𝗲𝗻",
+                    "🚀 𝗚𝗲𝗻𝗲𝗿𝗮𝘁𝗲 & 𝗩𝗲𝗿𝗶𝗳𝘆 𝗧𝗼𝗸𝗲𝗻",
                     url=f"https://t.me/{bot_username}?start=verify_{user_id}"
                 )
             ]]),
