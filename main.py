@@ -10,7 +10,7 @@ from pyrogram import Client, filters
 from pyrogram.types import BotCommand, InlineKeyboardMarkup, InlineKeyboardButton
 
 from database.db import users_collection
-from config import API_ID, API_HASH, BOT_TOKEN, OWNER_ID, LOGS_CHAT_ID, TOKEN_MODE
+from config import API_ID, API_HASH, BOT_TOKEN, OWNER_ID, LOGS_CHAT_ID
 
 
 logging.basicConfig(
@@ -184,6 +184,7 @@ class Bot(Client):
                     )
 
                     try:
+                        config = await database.config.find_one({"key": "Token_Info"}) or {}
                         is_token_user = str(existing_preset).startswith("token_")
 
                         expiry_msg = (
@@ -191,7 +192,7 @@ class Bot(Client):
                             "You've been moved back to the **Free Plan** — fewer features, but you're still awesome! 😎\n\n"
                         )
 
-                        if is_token_user and TOKEN_MODE:
+                        if is_token_user and config.get("token_mode", False):
                             expiry_msg += (
                                 "🎁 **But hey!** You can still grab a **Free Premium Pass** using **/token** — it's waiting for you (but not forever!). ⏳\n"
                                 "✨ Want the full VIP experience with zero limits? Just **upgrade** and unlock all the good stuff!"
