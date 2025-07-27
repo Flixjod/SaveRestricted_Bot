@@ -475,8 +475,11 @@ async def save(client: Client, message: Message):
         total_msg = toID - fromID + 1
         last_msg = fromID - 2
 
-        # Banned Check
+        is_free_user = await Check_Plan(client, message.from_user.id)
         user_info = await database.users.find_one({'user_id': message.from_user.id})
+        config = await database.config.find_one({"key": "Token_Info"}) or {}
+
+        # Banned Check
         if user_info and "banned_info" in user_info:
             banned_info = user_info.get("banned_info", {})
             ban_time = banned_info.get("ban_time")
@@ -496,10 +499,6 @@ async def save(client: Client, message: Message):
                 reply_to_message_id=message.id,
             )
             return
-
-        is_free_user = await Check_Plan(client, message.from_user.id)
-        user_info = await database.users.find_one({'user_id': message.from_user.id})
-        config = await database.config.find_one({"key": "Token_Info"}) or {}
 
         # 🔒 Force join group for free or token users
         token_mode = config.get("token_mode", False)
