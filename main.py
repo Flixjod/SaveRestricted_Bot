@@ -9,7 +9,7 @@ from logging.handlers import RotatingFileHandler
 from pyrogram import Client, filters
 from pyrogram.types import BotCommand, InlineKeyboardMarkup, InlineKeyboardButton
 
-from database.db import users_collection
+from database.db import database, users_collection
 from config import API_ID, API_HASH, BOT_TOKEN, OWNER_ID, LOGS_CHAT_ID
 
 
@@ -185,7 +185,7 @@ class Bot(Client):
 
                     try:
                         config = await database.config.find_one({"key": "Token_Info"}) or {}
-                        is_token_user = str(existing_preset).startswith("token_")
+                        is_token_user = str(existing_preset or "").startswith("token_")
 
                         expiry_msg = (
                             "💔 **Oops! Your Premium Access Just Ended.**\n"
