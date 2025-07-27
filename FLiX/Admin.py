@@ -1710,16 +1710,16 @@ async def user_stats(client, message):
         )
 
         await msg.edit_text(
-            "**✨ ᴜꜱᴇʀꜱ ꜱᴛᴀᴛɪꜱᴛɪᴄꜱ ᴘᴀɴᴇʟ**\n"
-            "━━━━━━━━━━━━━━━━━━━━\n\n"
-            f"👥 **Total Users:** `{total_users}`\n"
-            f"💎 **Premium Users:** `{premium_users}`\n"
-            f"🔑 **Token Users:** `{token_users}`\n"
-            f"🆓 **Free Users:** `{free_users}`\n"
-            f"⛔ **Banned Users:** `{banned_users}`\n"
-            f"📥 **Total Files Saved:** `{total_downloads}`\n\n"
-            "━━━━━━━━━━━━━━━━━━━━\n"
-            "⚙️ *Updated in real-time — Your bot is thriving!*"
+            "**✨ 𝙐𝙎𝙀𝙍𝙎 𝙎𝙏𝘼𝙏𝙎 𝘿𝘼𝙎𝙃𝘽𝙊𝘼𝙍𝘿 ✨**\n"
+            "╭━━━━━━━━━━━━━━━━━━╮\n"
+            f"├ 👥 **Total Users:** `{total_users}`\n"
+            f"├ 💎 **Premium Users:** `{premium_users}`\n"
+            f"├ 🔑 **Token Users:** `{token_users}`\n"
+            f"├ 🆓 **Free Users:** `{free_users}`\n"
+            f"├ ⛔ **Banned Users:** `{banned_users}`\n"
+            f"├ 📦 **Files Saved:** `{total_downloads}`\n"
+            "╰━━━━━━━━━━━━━━━━━━╯\n\n"
+            "⚡️ *Real-time Insights — Built Different.*\n"
         )
 
     except Exception as e:
