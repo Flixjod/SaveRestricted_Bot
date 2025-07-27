@@ -1710,11 +1710,11 @@ async def user_stats(client, message):
         )
 
         await msg.edit_text(
-            "**✨ ᴜꜱᴇʀ ꜱᴛᴀᴛɪꜱᴛɪᴄꜱ ᴘᴀɴᴇʟ**\n"
+            "**✨ ᴜꜱᴇʀꜱ ꜱᴛᴀᴛɪꜱᴛɪᴄꜱ ᴘᴀɴᴇʟ**\n"
             "━━━━━━━━━━━━━━━━━━━━\n\n"
             f"👥 **Total Users:** `{total_users}`\n"
             f"💎 **Premium Users:** `{premium_users}`\n"
-            f"🔑 **Token-Based Premiums:** `{token_users}`\n"
+            f"🔑 **Token Users:** `{token_users}`\n"
             f"🆓 **Free Users:** `{free_users}`\n"
             f"⛔ **Banned Users:** `{banned_users}`\n"
             f"📥 **Total Files Saved:** `{total_downloads}`\n\n"
