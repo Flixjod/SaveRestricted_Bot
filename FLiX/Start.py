@@ -91,7 +91,13 @@ async def send_start(client: Client, message: Message):
             return await buy_plans(client, message)
 
         if param.lower() == "verify":
-            return async def generate_token(client: Client, message: Message):
+            if param.lower().startswith("verify_"):
+                parts = param.split("_")
+                if len(parts) == 2 and parts[1].isdigit():
+                    expected_user_id = int(parts[1])
+                    if user.id != expected_user_id:
+                        return  # 🔇 Do nothing if ID mismatch
+                    return await generate_token(client, message)
 
         if param.startswith("token_"):
             config = await database.config.find_one({"key": "Token_Info"}) or {}
@@ -278,7 +284,6 @@ async def shorten_link(deep_url: str, config) -> str:
 
 
 # Token
-@Client.on_message(filters.command("token"), group=0)
 async def generate_token(client: Client, message: Message):
     user_id = message.from_user.id
     user = await database.users.find_one({"user_id": user_id})
@@ -372,6 +377,80 @@ async def generate_token(client: Client, message: Message):
         disable_web_page_preview=True,
         reply_to_message_id=message.id
     )
+
+@Client.on_message(filters.command("token"), group=0)
+async def token_command(client: Client, message: Message):
+    user = message.from_user
+    user_id = user.id
+    user_name = user.mention
+    chat = message.chat
+    chat_type = chat.type
+
+    # Fetch token system config
+    config = await database.config.find_one({"key": "Token_Info"}) or {}
+    token_mode = config.get("token_mode", False)
+    auth_group_mode = config.get("auth_group_mode", False)
+    auth_group_id = config.get("group_id")
+    invite_link = config.get("invite_link", "https://t.me/")
+
+    # ⚠️ If token mode is disabled, don't proceed
+    if not token_mode:
+        return await message.reply(
+            "🚫 **Token system is currently disabled.**",
+            reply_to_message_id=message.id
+        )
+
+    # Get bot username
+    bot = await client.get_me()
+    bot_username = bot.username
+
+    # ✅ If auth group mode is enabled
+    if auth_group_mode:
+        # ❌ If used in private
+        if chat_type == "private":
+            return await client.send_message(
+                chat.id,
+                "🔒 **Token can only be generated in the Auth Group.**\n"
+                "Join the group below and use `/token` there.",
+                reply_markup=InlineKeyboardMarkup([[
+                    InlineKeyboardButton("🔗 Join Auth Group", url=invite_link)
+                ]]),
+                reply_to_message_id=message.id
+            )
+
+        # ❌ If used in wrong group
+        if chat.id != auth_group_id:
+            return await client.send_message(
+                chat.id,
+                "🚫 **This group is not authorized to generate tokens.**",
+                reply_to_message_id=message.id
+            )
+
+        # ✅ Inside valid group → show DM verify button
+        return await client.send_message(
+            chat.id,
+            f"👋 Hello {user_name}!\n\n"
+            f"🔐 To continue, **verify yourself in private chat**.\n"
+            f"Click the button below to get your token.",
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton(
+                    "✅ Verify in DM",
+                    url=f"https://t.me/{bot_username}?start=verify_{user_id}"
+                )
+            ]]),
+            reply_to_message_id=message.id
+        )
+
+    # ✅ If auth group mode is off → only allow in private
+    if chat_type != "private":
+        return await client.send_message(
+            chat.id,
+            "⚠️ **This command can only be used in private chat.**",
+            reply_to_message_id=message.id
+        )
+
+    # ✅ Token Mode ON + Private Chat + Auth Group Mode OFF
+    return await generate_token(client, message)
 
 
 
