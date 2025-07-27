@@ -5,7 +5,7 @@ import os, re, time, pytz, psutil, aiofiles, logging, asyncio, platform
 from datetime import datetime, timedelta
 
 from telegraph import Telegraph
-from pyrogram import Client, filters
+from pyrogram import Client, filters, CallbackQuery
 from pyrogram.types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.errors import UserIsBlocked, PeerIdInvalid
 
@@ -1789,7 +1789,7 @@ async def token_auth_command(client, message):
     if not config:
         config = {
             "key": "Token_Info",
-            "token_mode": False,
+            "token_mode": True,
             "api_url": TOKEN_API_URL,
             "api_key": TOKEN_API_KEY,
             "duration": 1,
