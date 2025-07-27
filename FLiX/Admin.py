@@ -1614,54 +1614,6 @@ async def check_all_users(client, message):
 
 
 
-# Server Stats
-@Client.on_message(filters.command("stats") , group=3)
-async def server_stats(client, message):
-    try:
-        # Owner Check: only allow authorized users
-        if not await check_owner(client, message):
-            return
-
-        # System info collection
-        ram = psutil.virtual_memory()
-        disk = psutil.disk_usage('/')
-        cpu_usage = psutil.cpu_percent(interval=1)
-        cpu_count = psutil.cpu_count(logical=True)
-        cpu_freq = psutil.cpu_freq().current if psutil.cpu_freq() else "N/A"
-        boot_time = datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S")
-
-        await client.send_message(
-            chat_id=message.chat.id,
-            text=(
-                f"**⚡ SERVER STATISTICS**\n\n"
-                f"**🧠 CPU**\n"
-                f"• **Usage:** `{cpu_usage}%`\n"
-                f"• **Cores:** `{cpu_count}`\n"
-                f"• **Frequency:** `{cpu_freq} MHz`\n\n"
-                f"**📦 RAM**\n"
-                f"• **Usage:** `{ram.percent}%`\n"
-                f"• **Total:** `{round(ram.total / (1024 ** 3), 2)} GB`\n"
-                f"• **Available:** `{round(ram.available / (1024 ** 3), 2)} GB`\n\n"
-                f"**💽 DISK**\n"
-                f"• **Usage:** `{disk.percent}%`\n"
-                f"• **Total:** `{round(disk.total / (1024 ** 3), 2)} GB`\n"
-                f"• **Free:** `{round(disk.free / (1024 ** 3), 2)} GB`\n\n"
-                f"**⚙️ SYSTEM**\n"
-                f"• **Uptime Since:** `{boot_time}`\n"
-                f"• **OS:** `{platform.system()} {platform.release()}`"
-            ),
-            reply_to_message_id=message.id
-        )
-
-    except Exception as e:
-        await client.send_message(
-            chat_id=message.chat.id,
-            text=f"⚠️ **Error Occurred!**\n\n`{e}`",
-            reply_to_message_id=message.id
-        )
-
-
-
 #logs
 @Client.on_message(filters.command("logs") & filters.private, group=3)
 async def send_logs(client, message: Message):
@@ -1724,7 +1676,7 @@ async def send_logs(client, message: Message):
 
 
 # All User Stats
-@Client.on_message(filters.command("status"), group=4)
+@Client.on_message(filters.command("stats"), group=4)
 async def user_stats(client, message):
     try:
         # Owner Check: only allow authorized users
