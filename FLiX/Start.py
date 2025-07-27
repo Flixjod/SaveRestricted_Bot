@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 from pyrogram import Client, filters
 from pyrogram.enums import ChatMemberStatus
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, ChatType
 
 from database.db import database
 from FLiX.strings import HELP_TXT
@@ -378,6 +378,7 @@ async def generate_token(client: Client, message: Message):
         reply_to_message_id=message.id
     )
 
+
 @Client.on_message(filters.command("token"), group=0)
 async def token_command(client: Client, message: Message):
     user = message.from_user
@@ -386,39 +387,49 @@ async def token_command(client: Client, message: Message):
     chat = message.chat
     chat_type = chat.type
 
-    # ✅ Fetch config from the correct key
+    # ⏬ Load config from DB
     config = await database.config.find_one({"key": "Token_Info"}) or {}
+
     token_mode = config.get("token_mode", False)
     auth_group_mode = config.get("auth_group_mode", False)
     auth_group_id = config.get("group_id")
-    invite_link = config.get("invite_link")
+    invite_link = config.get("invite_link", "https://t.me/")
 
+    # ❌ Token system off
+    if not token_mode:
+        return await client.send_message(
+            chat.id,
+            "🚫 **Token system is currently disabled.**",
+            reply_to_message_id=message.id
+        )
+
+    # 🤖 Bot username for DM link
     bot = await client.get_me()
     bot_username = bot.username
 
-    # 🔐 Auth group mode enabled
-    if token_mode and auth_group_mode and auth_group_id:
-        # ❌ Private chat
-        if chat_type == "private":
+    # 🔐 Auth Group Mode Enabled
+    if auth_group_mode:
+        # ❌ Used in private
+        if chat_type == ChatType.PRIVATE:
             return await client.send_message(
                 chat.id,
-                "🔒 **Token can only be generated in the Auth Group.**\n"
+                "🔒 **Token can only be generated inside the Auth Group.**\n"
                 "Join the group below and use `/token` there.",
                 reply_markup=InlineKeyboardMarkup([[
-                    InlineKeyboardButton("🔗 Join Auth Group", url=invite_link or "https://t.me/")
+                    InlineKeyboardButton("🔗 Join Auth Group", url=invite_link)
                 ]]),
                 reply_to_message_id=message.id
             )
 
-        # ❌ Wrong group
-        if chat.id != auth_group_id:
+        # ❌ Used in wrong group
+        if not auth_group_id or int(chat.id) != int(auth_group_id):
             return await client.send_message(
                 chat.id,
                 "🚫 **This group is not authorized to generate tokens.**",
                 reply_to_message_id=message.id
             )
 
-        # ✅ Correct group
+        # ✅ Inside valid group → Show verify in DM button
         return await client.send_message(
             chat.id,
             f"👋 Hello {user_name}!\n\n"
@@ -433,15 +444,15 @@ async def token_command(client: Client, message: Message):
             reply_to_message_id=message.id
         )
 
-    # 🔓 Auth group not enforced → allow only in private
-    if chat_type != "private":
+    # 🔓 Auth group mode OFF → allow only private chat
+    if chat_type != ChatType.PRIVATE:
         return await client.send_message(
             chat.id,
             "⚠️ **This command can only be used in private chat.**",
             reply_to_message_id=message.id
         )
 
-    # ✅ Private + no group mode → issue token directly
+    # ✅ Private + Token Mode ON + Auth Group Mode OFF
     return await generate_token(client, message)
 
 
