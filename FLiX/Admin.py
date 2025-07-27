@@ -1863,6 +1863,9 @@ async def token_auth_callback(client, callback):
     config_key = {"key": "Token_Info"}
     config = await database.config.find_one(config_key) or {}
 
+    if not await check_owner(client, message):
+        return
+
     async def ask_input(prompt: str):
         ask = await client.send_message(user_id, prompt)
         r = await client.listen(user_id)
@@ -1918,12 +1921,20 @@ async def token_auth_callback(client, callback):
 
 
 
-async def check_owner(client: Client, message: Message) -> bool:
-    if message.from_user.id not in OWNER_ID:
-        await client.send_message(
-            chat_id=message.chat.id,
-            text="🚫 𝗔𝗰𝗰𝗲𝘀𝘀 𝗗𝗲𝗻𝗶𝗲𝗱!\n\n🔒 This command is **restricted** to bot admins.",
-            reply_to_message_id=message.id
-        )
+async def check_owner(client: Client, event) -> bool:
+    user_id = event.from_user.id
+
+    if user_id not in OWNER_ID:
+        if isinstance(event, Message):
+            await client.send_message(
+                chat_id=event.chat.id,
+                text="🚫 𝗔𝗰𝗰𝗲𝘀𝘀 𝗗𝗲𝗻𝗶𝗲𝗱!\n\n🔒 This command is **restricted** to bot admins.",
+                reply_to_message_id=event.id
+            )
+        elif isinstance(event, CallbackQuery):
+            await event.answer(
+                "🚫 𝗔𝗰𝗰𝗲𝘀𝘀 𝗗𝗲𝗻𝗶𝗲𝗱!\n\n🔒 This action is restricted to bot admins.",
+                show_alert=True
+            )
         return False
     return True
