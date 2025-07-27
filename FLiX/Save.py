@@ -463,27 +463,6 @@ async def save(client: Client, message: Message):
         )
         return
 
-    user_info = await database.users.find_one({'user_id': message.from_user.id})
-    if user_info and "banned_info" in user_info:
-        banned_info = user_info.get("banned_info", {})
-        ban_time = banned_info.get("ban_time")
-        ban_time_ist = (
-            ban_time.astimezone(pytz.timezone("Asia/Kolkata")).strftime("`%d %B %Y - %I:%M:%S %p`") + " (IST)"
-            if ban_time else "`N/A`"
-        )
-        await message._client.send_message(
-            chat_id=message.chat.id,
-            text=(
-                f"🚫 𝗔𝗰𝗰𝗲𝘀𝘀 𝗗𝗲𝗻𝗶𝗲𝗱!\n\n"
-                f"😔 𝗬𝗼𝘂 𝗮𝗿𝗲 𝗯𝗮𝗻𝗻𝗲𝗱 𝗳𝗿𝗼𝗺 𝘂𝘀𝗶𝗻𝗴 𝘁𝗵𝗶𝘀 𝗯𝗼𝘁.\n\n"
-                f"📅 𝗕𝗮𝗻 𝗧𝗶𝗺𝗲: {ban_time_ist}\n"
-                f"📝 𝗥𝗲𝗮𝘀𝗼𝗻: `{banned_info.get('reason', 'No reason provided.')}`\n\n"
-                f"⚠️ 𝗜𝗳 𝘆𝗼𝘂 𝗯𝗲𝗹𝗶𝗲𝘃𝗲 𝘁𝗵𝗶𝘀 𝗶𝘀 𝗮 𝗺𝗶𝘀𝘁𝗮𝗸𝗲, 𝗽𝗹𝗲𝗮𝘀𝗲 𝗰𝗼𝗻𝘁𝗮𝗰𝘁 𝘀𝘂𝗽𝗽𝗼𝗿𝘁."
-            ),
-            reply_to_message_id=message.id,
-        )
-        return
-
     if "https://t.me/" in message.text:
         datas = message.text.split("/")
         temp = datas[-1].replace("?single","").split("-")
@@ -495,6 +474,28 @@ async def save(client: Client, message: Message):
         #if batch
         total_msg = toID - fromID + 1
         last_msg = fromID - 2
+
+        # Banned Check
+        user_info = await database.users.find_one({'user_id': message.from_user.id})
+        if user_info and "banned_info" in user_info:
+            banned_info = user_info.get("banned_info", {})
+            ban_time = banned_info.get("ban_time")
+            ban_time_ist = (
+                ban_time.astimezone(pytz.timezone("Asia/Kolkata")).strftime("`%d %B %Y - %I:%M:%S %p`") + " (IST)"
+                if ban_time else "`N/A`"
+            )
+            await message._client.send_message(
+                chat_id=message.chat.id,
+                text=(
+                    f"🚫 𝗔𝗰𝗰𝗲𝘀𝘀 𝗗𝗲𝗻𝗶𝗲𝗱!\n\n"
+                    f"😔 𝗬𝗼𝘂 𝗮𝗿𝗲 𝗯𝗮𝗻𝗻𝗲𝗱 𝗳𝗿𝗼𝗺 𝘂𝘀𝗶𝗻𝗴 𝘁𝗵𝗶𝘀 𝗯𝗼𝘁.\n\n"
+                    f"📅 𝗕𝗮𝗻 𝗧𝗶𝗺𝗲: {ban_time_ist}\n"
+                    f"📝 𝗥𝗲𝗮𝘀𝗼𝗻: `{banned_info.get('reason', 'No reason provided.')}`\n\n"
+                    f"⚠️ 𝗜𝗳 𝘆𝗼𝘂 𝗯𝗲𝗹𝗶𝗲𝘃𝗲 𝘁𝗵𝗶𝘀 𝗶𝘀 𝗮 𝗺𝗶𝘀𝘁𝗮𝗸𝗲, 𝗽𝗹𝗲𝗮𝘀𝗲 𝗰𝗼𝗻𝘁𝗮𝗰𝘁 𝘀𝘂𝗽𝗽𝗼𝗿𝘁."
+                ),
+                reply_to_message_id=message.id,
+            )
+            return
 
         is_free_user = await Check_Plan(client, message.from_user.id)
         user_info = await database.users.find_one({'user_id': message.from_user.id})
@@ -512,11 +513,7 @@ async def save(client: Client, message: Message):
             is_token_user = preset.startswith("token_")
     
             if is_free_user or is_token_user:
-                try:
-                    member = await client.get_chat_member(auth_group_id, user_id)
-                    if member.status not in ("member", "administrator", "creator"):
-                        raise UserNotParticipant
-                except UserNotParticipant:
+                if not await is_member(client, message.from_user.id, auth_group_id):
                     await client.send_message(
                         chat_id=message.chat.id,
                         text="🚫 **Group Join Required!**\n\nPlease join the Auth Group to use this feature.",
