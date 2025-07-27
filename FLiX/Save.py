@@ -13,7 +13,7 @@ from pyrogram.errors import UsernameNotOccupied, RPCError, AuthKeyUnregistered, 
 
 from database.db import database
 from FLiX.strings import strings
-from config import API_ID, API_HASH, DUMP_CHAT_ID, FSUB_ID, FSUB_INV_LINK, LOGS_CHAT_ID, TOKEN_MODE
+from config import API_ID, API_HASH, DUMP_CHAT_ID, FSUB_ID, FSUB_INV_LINK, LOGS_CHAT_ID
 
 logger = logging.getLogger(__name__)
 
@@ -158,7 +158,7 @@ async def Check_Plan(client, user_id):
                     "You've been moved back to the **Free Plan** — fewer features, but you're still awesome! 😎\n\n"
                 )
 
-                if is_token_user and config.get("mode", False):
+                if is_token_user and config.get("token_mode", False):
                     expiry_msg += (
                         "🎁 **But hey!** You can still grab a **Free Premium Pass** using **/token** — it's waiting for you (but not forever!). ⏳\n"
                         "✨ Want the full VIP experience with zero limits? Just **upgrade** and unlock all the good stuff!"
@@ -509,7 +509,7 @@ async def save(client: Client, message: Message):
                 "• Faster speeds\n"
                 "• Priority support & more!\n\n"
             )
-            if config.get("mode", False):
+            if config.get("token_mode", False):
                 msg += "🎁 Use `/token` to **verify your premium token** and unlock full access – *limited time only!*""
 
             await client.send_message(
@@ -543,7 +543,7 @@ async def save(client: Client, message: Message):
                     "⚡ Want instant access with *no waiting*?\n"
                     "Upgrade to Premium and enjoy unlimited freedom!\n\n"
                 )
-                if config.get("mode", False):
+                if config.get("token_mode", False):
                     msg += "🎁 Use `/token` to **verify your premium token** and unlock full access – *limited time only!*""
 
                 await client.send_message(
