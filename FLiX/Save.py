@@ -47,8 +47,10 @@ def format_duration(td) -> str:
     return ", ".join(filter(None, parts))
 
 
-async def is_member(client: Client,user_id: int) -> bool:
-    if not FSUB_ID:
+async def is_member(client: Client, user_id: int, fsub_id: str = None) -> bool:
+    fsub_id = fsub_id or FSUB_ID  # Use provided FSUB_ID or fallback to global
+
+    if not fsub_id:
         return True
 
     try:
@@ -449,8 +451,6 @@ async def stop_handler(client: Client, message: Message):
 # Save Fetch And Forward to You
 @Client.on_message(filters.text & ~filters.regex(r"^/") & (filters.private | filters.group), group=4)
 async def save(client: Client, message: Message):
-    config = await database.config.find_one({"key": "Token_Info"}) or {}
-
     if not await is_member(client, message.from_user.id):
         
         await client.send_message(
@@ -497,6 +497,35 @@ async def save(client: Client, message: Message):
         last_msg = fromID - 2
 
         is_free_user = await Check_Plan(client, message.from_user.id)
+        user_info = await database.users.find_one({'user_id': message.from_user.id})
+        config = await database.config.find_one({"key": "Token_Info"}) or {}
+
+        # 🔒 Force join group for free or token users
+        token_mode = config.get("token_mode", False)
+        auth_group_mode = config.get("auth_group_mode", False)
+        auth_group_id = config.get("group_id")
+        invite_link = config.get("invite_link", "https://t.me/")
+    
+        if token_mode and auth_group_mode and auth_group_id:
+            plan = user_info.get("plan", {})
+            preset = str(plan.get("preset", ""))
+            is_token_user = preset.startswith("token_")
+    
+            if is_free_user or is_token_user:
+                try:
+                    member = await client.get_chat_member(auth_group_id, user_id)
+                    if member.status not in ("member", "administrator", "creator"):
+                        raise UserNotParticipant
+                except UserNotParticipant:
+                    await client.send_message(
+                        chat_id=message.chat.id,
+                        text="🚫 **Group Join Required!**\n\nPlease join the Auth Group to use this feature.",
+                        reply_markup=InlineKeyboardMarkup([[
+                            InlineKeyboardButton("🔗 Join Group", url=invite_link)
+                        ]]),
+                        reply_to_message_id=message.id
+                    )
+                    return
 
         if is_free_user and fromID != toID:
             bot_info = await client.get_me()
