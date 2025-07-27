@@ -510,7 +510,7 @@ async def save(client: Client, message: Message):
                 "• Priority support & more!\n\n"
             )
             if config.get("token_mode", False):
-                msg += "🎁 Use `/token` to **verify your premium token** and unlock full access – *limited time only!*""
+                msg += "🎁 Use `/token` to **verify your premium token** and unlock full access – *limited time only!*"
 
             await client.send_message(
                 chat_id=message.chat.id,
@@ -544,7 +544,7 @@ async def save(client: Client, message: Message):
                     "Upgrade to Premium and enjoy unlimited freedom!\n\n"
                 )
                 if config.get("token_mode", False):
-                    msg += "🎁 Use `/token` to **verify your premium token** and unlock full access – *limited time only!*""
+                    msg += "🎁 Use `/token` to **verify your premium token** and unlock full access – *limited time only!*"
 
                 await client.send_message(
                     chat_id=message.chat.id,
