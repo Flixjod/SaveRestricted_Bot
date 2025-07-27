@@ -34,15 +34,8 @@ FSUB_ID = int(os.environ.get("FSUB_ID", "") or 0) or None
 #Force Sub Channel Invite Link
 FSUB_INV_LINK = os.environ.get("FSUB_INV_LINK", "")
 
-#Token Based Premium 
-TOKEN_MODE = os.getenv("TOKEN_MODE", "True").lower() == "true"
-
-# Shortner Api Url
+# Shortner Api Url For Token
 TOKEN_API_URL = os.environ.get("TOKEN_API_KEY", "https://arolinks.com/api")
 
 #Api Key For Token
 TOKEN_API_KEY = os.environ.get("TOKEN_API_KEY", "e425c537944dc2fe1fe0b824e2fb5748ba1be914")
-
-#Token Duration
-TOKEN_DURATION = int(os.getenv("TOKEN_DURATION", 1))
-
