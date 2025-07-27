@@ -155,8 +155,9 @@ async def send_start(client: Client, message: Message):
                     )
 
             # ✅ Valid Token - Activate Premium
+            duration = config.get("duration", 1)
             started_at = now
-            expiration_at = now + timedelta(hours=TOKEN_DURATION)
+            expiration_at = now + timedelta(hours=duration)
 
             await database.users.update_one(
                 {"user_id": user_id},
@@ -255,14 +256,14 @@ async def send_start(client: Client, message: Message):
     )
 
 
-async def shorten_link(deep_url: str) -> str:
+async def shorten_link(deep_url: str, config) -> str:
     error_report_url = "https://t.me/FLiX_LY?text=%F0%9F%94%A5%20**Yo%20Boss!**%0A%0AThe%20**Token%20link**%20didn%E2%80%99t%20make%20it.%0ALooks%20like%20something%E2%80%99s%20broken%20%E2%80%94%20alias%20might%20be%20taken%20or%20the%20API%20is%20acting%20up.%0A%0AWanna%20take%20a%20look%3F%20%F0%9F%9B%A0%EF%B8%8F"
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                TOKEN_API_URL,
+                config.get("api_url", "❌ Not Set"),
                 params={
-                    "api": TOKEN_API_KEY,
+                    "api": config.get("api_key", "❌ Not Set"),
                     "url": deep_url,
                     "format": "json"
                 }
@@ -353,7 +354,7 @@ async def generate_token(client: Client, message: Message):
 
     bot_username = (await client.get_me()).username
     token_url = f"https://t.me/{bot_username}?start=token_{token}"
-    short_url = await shorten_link(token_url)
+    short_url = await shorten_link(token_url, config)
 
     # 🎁 Send token to user
     return await client.send_message(
