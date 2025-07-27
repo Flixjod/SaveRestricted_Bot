@@ -1705,18 +1705,21 @@ async def user_stats(client, message):
 
         msg = await client.send_message(
             chat_id=message.chat.id,
-            text="**⏳ Fetching Info...**",
+            text="****⏳ Hang Tight... Fetching DB Info...**",
             reply_to_message_id=message.id
         )
 
         await msg.edit_text(
-            "**✨ USER STATISTICS**\n\n"
+            "**✨ ᴜꜱᴇʀ ꜱᴛᴀᴛɪꜱᴛɪᴄꜱ ᴘᴀɴᴇʟ**\n"
+            "━━━━━━━━━━━━━━━━━━━━\n\n"
             f"👥 **Total Users:** `{total_users}`\n"
             f"💎 **Premium Users:** `{premium_users}`\n"
-            f"🔑 **Token Users:** `{token_users}`\n"
+            f"🔑 **Token-Based Premiums:** `{token_users}`\n"
             f"🆓 **Free Users:** `{free_users}`\n"
             f"⛔ **Banned Users:** `{banned_users}`\n"
-            f"📥 **Total Saved:** `{total_downloads}`"
+            f"📥 **Total Files Saved:** `{total_downloads}`\n\n"
+            "━━━━━━━━━━━━━━━━━━━━\n"
+            "⚙️ *Updated in real-time — Your bot is thriving!*"
         )
 
     except Exception as e:
