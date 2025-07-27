@@ -414,10 +414,11 @@ async def token_command(client: Client, message: Message):
         if chat_type == ChatType.PRIVATE:
             return await client.send_message(
                 chat.id,
-                "🔒 **Token can only be generated inside the Auth Group.**\n"
-                "Join the group below and use `/token` there.",
+                "🚫 **Hold on! Token generation is not allowed here.**\n\n"
+                "✨ To keep things secure and premium, tokens can only be generated inside our **exclusive Auth Group**.\n\n"
+                "👉 Join the group below and use the `/token` command there to get started!",
                 reply_markup=InlineKeyboardMarkup([[
-                    InlineKeyboardButton("🔗 Join Auth Group", url=invite_link)
+                    InlineKeyboardButton("🔐 Join Auth Group", url=invite_link)
                 ]]),
                 reply_to_message_id=message.id
             )
@@ -426,7 +427,12 @@ async def token_command(client: Client, message: Message):
         if not auth_group_id or int(chat.id) != int(auth_group_id):
             return await client.send_message(
                 chat.id,
-                "🚫 **This group is not authorized to generate tokens.**",
+                "⚠️ **Unauthorized Group!**\n\n"
+                "🚫 Token generation is only allowed in our **official Auth Group**.\n"
+                "Please head over there and use the `/token` command to continue.",
+                reply_markup=InlineKeyboardMarkup([[
+                    InlineKeyboardButton("🔐 Join Auth Group", url=invite_link)
+                ]]),
                 reply_to_message_id=message.id
             )
 
@@ -434,11 +440,12 @@ async def token_command(client: Client, message: Message):
         return await client.send_message(
             chat.id,
             f"👋 Hello {user_name}!\n\n"
-            f"🔐 To continue, **verify yourself in private chat**.\n"
-            f"Click the button below to get your token.",
+            f"✅ Your **access token has been generated**!\n"
+            f"🔐 To activate it, please **verify yourself in private chat**.\n\n"
+            f"Tap the button below to complete verification:",
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton(
-                    "✅ Verify in DM",
+                    "🚀 𝗩𝗲𝗿𝗶𝗳𝘆 𝗬𝗼𝘂𝗿 𝗧𝗼𝗸𝗲𝗻",
                     url=f"https://t.me/{bot_username}?start=verify_{user_id}"
                 )
             ]]),
