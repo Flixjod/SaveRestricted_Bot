@@ -150,7 +150,7 @@ async def Check_Plan(client, user_id):
 
             # Notify the user
             try:
-                is_token_user = str(existing_preset).startswith("token_")
+                is_token_user = str(existing_preset or "").startswith("token_")
                 bot_username = (await client.get_me()).username
 
                 expiry_msg = (
