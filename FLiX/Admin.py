@@ -1863,7 +1863,7 @@ async def token_auth_callback(client, callback):
     config_key = {"key": "Token_Info"}
     config = await database.config.find_one(config_key) or {}
 
-    if not await check_owner(client, message):
+    if not await check_owner(client, callback):
         return
 
     async def ask_input(prompt: str):
