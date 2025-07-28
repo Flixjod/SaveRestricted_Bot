@@ -54,7 +54,7 @@ async def is_member(client: Client, user_id: int, fsub_id: str = None) -> bool:
         return True
 
     try:
-        chat_member = await client.get_chat_member(FSUB_ID, user_id)
+        chat_member = await client.get_chat_member(fsub_id, user_id)
         return chat_member.status in [
             ChatMemberStatus.MEMBER,
             ChatMemberStatus.ADMINISTRATOR,
@@ -506,7 +506,7 @@ async def save(client: Client, message: Message):
         auth_group_id = config.get("group_id")
         invite_link = config.get("invite_link", "https://t.me/")
     
-        if token_mode and auth_group_mode and auth_group_id:
+        if auth_group_mode and auth_group_id:
             plan = user_info.get("plan", {})
             preset = str(plan.get("preset", ""))
             is_token_user = preset.startswith("token_")
