@@ -39,7 +39,8 @@ async def settings_command(client: Client, message: Message):
 
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("🖼️ 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹", callback_data=f"thumbnail_{user_id}")],
-        [InlineKeyboardButton("🪄 𝗠𝗮𝗴𝗶𝗰 𝗪𝗼𝗿𝗱𝘀", callback_data=f"custom_words_{user_id}")],
+        [InlineKeyboardButton("🪄 𝗠𝗮𝗴𝗶𝗰 𝗪𝗼𝗿𝗱𝘀", callback_data=f"custom_words_{user_id}"),
+        InlineKeyboardButton("📨 𝗖𝘂𝘀𝘁𝗼𝗺 𝗖𝗵𝗮𝘁 𝗜𝗗", callback_data=f"custom_chatid_menu_{user_id}")],
         [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"back_to_start_{user_id}")]
     ])
 
@@ -67,7 +68,8 @@ async def open_settings(client: Client, callback_query):
     user_id = callback_query.from_user.id
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("🖼️ 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹", callback_data=f"thumbnail_{user_id}")],
-        [InlineKeyboardButton("🪄 𝗠𝗮𝗴𝗶𝗰 𝗪𝗼𝗿𝗱𝘀", callback_data=f"custom_words_{user_id}")],
+        [InlineKeyboardButton("🪄 𝗠𝗮𝗴𝗶𝗰 𝗪𝗼𝗿𝗱𝘀", callback_data=f"custom_words_{user_id}"),
+        InlineKeyboardButton("📨 𝗖𝘂𝘀𝘁𝗼𝗺 𝗖𝗵𝗮𝘁 𝗜𝗗", callback_data=f"custom_chatid_menu_{user_id}")],
         [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"back_to_start_{user_id}")]
     ])
 
@@ -99,7 +101,7 @@ async def thumbnail(client: Client, callback_query):
             InlineKeyboardButton("🗑 𝗥𝗲𝗺𝗼𝘃𝗲", callback_data=f"remove_thumbnail_{user_id}"),
             InlineKeyboardButton("📷 𝗩𝗶𝗲𝘄", callback_data=f"view_thumbnail_{user_id}")
         ],
-        [InlineKeyboardButton("🔙 𝗕𝗮𝗰𝗸", callback_data=f"back_to_start_{user_id}")]
+        [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"back_to_start_{user_id}")]
     ])
 
     await callback_query.message.edit_text(
@@ -522,6 +524,169 @@ async def clear_custom_words(client: Client, callback_query):
 
     # Refresh the replacements menu
     await show_custom_words(client, chat_id=callback_query.message.chat.id, message_id=callback_query.message.id, user=callback_query.from_user)
+
+
+# Custom Chat ID
+from pyrogram.enums import ChatMemberStatus
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+import asyncio
+
+
+@Client.on_callback_query(filters.regex(r"^custom_chatid_(menu|view|set|remove)_\d+$"), group=2)
+async def custom_chatid_handler(client, callback_query):
+    action, user_id = callback_query.data.split("_")[2], int(callback_query.data.split("_")[-1])
+    from_user = callback_query.from_user.id
+    chat_id = callback_query.message.chat.id
+
+    if not await user_check(callback_query, user_id):
+        return
+
+    user_data = await database.users.find_one({'user_id': from_user})
+    settings = user_data.get('settings', {}) if user_data else {}
+
+    # 📂 Main Panel
+    if action == "menu":
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("➕ 𝗦𝗲𝘁 𝗖𝗵𝗮𝘁 𝗜𝗗", callback_data=f"custom_chatid_set_{user_id}")],
+            [
+                InlineKeyboardButton("➖ 𝗥𝗲𝗺𝗼𝘃𝗲", callback_data=f"custom_chatid_remove_{user_id}"),
+                InlineKeyboardButton("📖 𝗩𝗶𝗲𝘄", callback_data=f"custom_chatid_view_{user_id}")
+            ],
+            [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"open_settings__{user_id}")]
+        ])
+
+        await callback_query.message.edit_text(
+            f"✨ 𝗛𝗲𝘆 {callback_query.from_user.mention}!\n\n"
+            "🛠️ **Chat ID Management Panel:**\n"
+            "Customize where your bot delivers files or outputs!\n\n"
+            "💡 **What you can do:**\n"
+            "   • ➕ Set a custom Chat ID (group/channel)\n"
+            "   • 👁 View saved destination\n"
+            "   • 🗑 Remove the saved ID anytime\n\n"
+            "📝 Tip: Forward a message from the chat or reply with its numeric ID.",
+            reply_markup=keyboard
+        )
+        return
+
+    # 👁 View
+    if action == "view":
+        saved_id = settings.get("chat_id")
+        if not saved_id:
+            await callback_query.message.edit_text(
+                "🚫 **No Chat ID is currently set.**",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"custom_chatid_menu_{user_id}")]
+                ])
+            )
+            return
+
+        try:
+            chat = await client.get_chat(saved_id)
+            title = chat.title or "N/A"
+            username = f"@{chat.username}" if chat.username else "None"
+
+            await callback_query.message.edit_text(
+                f"👁 **Saved Chat ID Details:**\n\n"
+                f"• 🏷 **Title:** {title}\n"
+                f"• 🆔 **Chat ID:** `{saved_id}`\n"
+                f"• 🔗 **Username:** {username}",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"custom_chatid_menu_{user_id}")]
+                ])
+            )
+        except Exception:
+            await callback_query.message.edit_text(
+                f"⚠️ **Failed to retrieve details for** `{saved_id}`.\n"
+                "It might be private, deleted, or I'm no longer in it.",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"custom_chatid_menu_{user_id}")]
+                ])
+            )
+        return
+
+    # 🗑 Remove
+    if action == "remove":
+        if not settings.get("chat_id"):
+            await callback_query.answer("🚫 No Chat ID is set.", show_alert=True)
+            return
+
+        await database.users.update_one({'user_id': from_user}, {'$unset': {'settings.chat_id': None}})
+        await callback_query.message.edit_text(
+            "✅ **Chat ID has been removed successfully.**",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"custom_chatid_menu_{user_id}")]
+            ])
+        )
+        return
+
+    # ➕ Set
+    if action == "set":
+        await callback_query.answer("📨 Waiting for input...")
+        prompt = await callback_query.message.edit_text(
+            "**📤 Reply with a Chat ID or forward a message from the target group/channel.**",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"custom_chatid_menu_{user_id}")]
+            ])
+        )
+
+        try:
+            response = await client.wait_for_message(
+                chat_id=chat_id,
+                timeout=60,
+                filters=filters.reply & filters.user(from_user)
+            )
+
+            target_chat_id = None
+            if response.forward_from_chat:
+                target_chat_id = response.forward_from_chat.id
+            elif response.text and response.text.lstrip("-").isdigit():
+                target_chat_id = int(response.text.strip())
+
+            if not target_chat_id:
+                await response.reply("❌ **Invalid input.** Try forwarding a message or sending the chat ID.")
+                return
+
+            # 🔐 Bot Admin Check
+            try:
+                member = await client.get_chat_member(target_chat_id, "me")
+                if member.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
+                    raise ValueError("Bot is not an admin")
+            except Exception:
+                await prompt.edit_text(
+                    "❌ **I must be an admin in the chat to save it!**\n\n"
+                    "🧾 Ensure the following:\n"
+                    "• The bot is added\n"
+                    "• It has admin rights\n"
+                    "• You sent a valid chat reference",
+                    reply_markup=InlineKeyboardMarkup([
+                        [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"custom_chatid_menu_{user_id}")]
+                    ])
+                )
+                return
+
+            # ✅ Save
+            chat = await client.get_chat(target_chat_id)
+            title = chat.title or "N/A"
+            username = f"@{chat.username}" if chat.username else "None"
+
+            await database.users.update_one(
+                {'user_id': from_user},
+                {'$set': {'settings.chat_id': target_chat_id}},
+                upsert=True
+            )
+
+            await prompt.edit_text(
+                f"✅ **Chat ID has been saved!**\n\n"
+                f"• 🏷 **Title:** {title}\n"
+                f"• 🆔 **ID:** `{target_chat_id}`\n"
+                f"• 🔗 **Username:** {username}",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"custom_chatid_menu_{user_id}")]
+                ])
+            )
+
+        except asyncio.TimeoutError:
+            await prompt.edit_text("⌛ **Timeout! No response received. Please try again.**")
 
 
 # Back To Start Callback
