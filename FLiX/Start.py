@@ -339,10 +339,11 @@ async def generate_token(client: Client, message: Message):
             return await client.send_message(
                 message.chat.id,
                 text=(
-                    "🪪 **Token-Based Premium Access**\n\n"
-                    f"✅ You are currently on a token plan.\n"
-                    f"🕐 **Valid Until:** `{exp_str}`\n\n"
-                    "🔁 Use /myplan to view full subscription details."
+                    "🌟 **You're on Premium (Token Access)**\n\n"
+                    "✅ Your token-based premium plan is **active**.\n"
+                    f"🗓️ **Expires:** `{exp_str}`\n\n"
+                    "📬 Use /myplan anytime to check your full subscription details.\n"
+                    "✨ Enjoy your premium experience!"
                 ),
                 reply_to_message_id=message.id
             )
