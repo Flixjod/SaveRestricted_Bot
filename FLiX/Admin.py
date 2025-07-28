@@ -16,8 +16,10 @@ from FLiX.Save import format_duration
 logger = logging.getLogger(__name__)
 
 telegraph = Telegraph()
-telegraph.create_account(short_name="SaveRest")
-
+try:
+    telegraph.create_account(short_name="SaveRest")
+except Exception as e:
+    logger.warning(f"⚠️ Failed to create Telegraph account — Skipping. Reason: {e}")
 
 
 @Client.on_message(filters.command("setplan") & filters.private, group=3)
