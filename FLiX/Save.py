@@ -851,14 +851,10 @@ async def handle_private(client: Client, acc, message: Message, chatid, msgid: i
             file = await acc.download_media(msg, file_name=filename, progress=progress, progress_args=[message, "down"])
             if not file:
                 raise ValueError("Downloaded file is missing or invalid.")
-            dosta.cancel()
 
         except asyncio.CancelledError:
             was_cancelled = True
-            if os.path.exists(f"{message.id}downstatus.txt"):
-                os.remove(f"{message.id}downstatus.txt")
-            if file and os.path.exists(file):
-                os.remove(file)
+            await cleanup_temp_files(message.id, [file])
             return was_cancelled
 
         except Exception as e:
@@ -867,10 +863,7 @@ async def handle_private(client: Client, acc, message: Message, chatid, msgid: i
             await client.send_message(chat, f"𝗘𝗿𝗿𝗼𝗿: 𝗗𝗼𝘄𝗻𝗹𝗼𝗮𝗱𝗲𝗱 𝗳𝗶𝗹𝗲 𝗶𝘀 𝗺𝗶𝘀𝘀𝗶𝗻𝗴 𝗼𝗿 𝗶𝗻𝘃𝗮𝗹𝗶𝗱. {str(e)}", reply_to_message_id=message.id)
             await database.users.update_one({'user_id': message.from_user.id}, {'$set': {'last_download_time': None}})
             dosta.cancel()
-            if os.path.exists(f"{message.id}downstatus.txt"):
-                os.remove(f"{message.id}downstatus.txt")
-            if file and os.path.exists(file):
-                os.remove(file)
+            await cleanup_temp_files(message.id, [file])
             return
 
         # Caption replacement
@@ -959,10 +952,7 @@ async def handle_private(client: Client, acc, message: Message, chatid, msgid: i
 
     except asyncio.CancelledError:
         was_cancelled = True
-        if os.path.exists(f"{message.id}upstatus.txt"):
-            os.remove(f"{message.id}upstatus.txt")
-        if file and os.path.exists(file):
-            os.remove(file)
+        await cleanup_temp_files(message.id, [file])
         return was_cancelled
 
     except Exception as e:
@@ -973,13 +963,7 @@ async def handle_private(client: Client, acc, message: Message, chatid, msgid: i
         for task in [dosta, upsta]:
             if task and not task.done():
                 task.cancel()
-        for f in [f"{message.id}downstatus.txt", f"{message.id}upstatus.txt"]:
-            if os.path.exists(f):
-                os.remove(f)
-        if file and os.path.exists(file):
-            os.remove(file)
-        if thumb_path and thumb_path != custom_thumb and os.path.exists(thumb_path):
-            os.remove(thumb_path)
+        await cleanup_temp_files(message.id, [file, thumb_path if thumb_path != custom_thumb else None])
         await smsg.delete()
 
 
@@ -1014,3 +998,15 @@ def get_file_info(msg: Message, sender_msg: Message):
 
     return f"{username}_{message_id}_file", 0
 
+
+async def cleanup_temp_files(message_id, files: list):
+    for suffix in ["downstatus.txt", "upstatus.txt"]:
+        f = f"{message_id}{suffix}"
+        if os.path.exists(f):
+            os.remove(f)
+
+    for f in files:
+        if f and os.path.exists(f):
+            os.remove(f)
+
+#
