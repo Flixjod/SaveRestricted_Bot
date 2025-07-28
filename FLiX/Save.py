@@ -515,9 +515,14 @@ async def save(client: Client, message: Message):
                 if not await is_member(client, message.from_user.id, auth_group_id):
                     await client.send_message(
                         chat_id=message.chat.id,
-                        text="🚫 **Group Join Required!**\n\nPlease join the Auth Group to use this feature.",
+                        text=(
+                            "🚫 **Hold Up! Access Locked**\n\n"
+                            "This feature is reserved for members of our **Auth Group** 🔐\n\n"
+                            "✨ Join now to unlock exclusive features and continue using the bot smoothly.\n\n"
+                            "👇 Click the button below to join:"
+                        ),
                         reply_markup=InlineKeyboardMarkup([[
-                            InlineKeyboardButton("🔗 Join Group", url=invite_link)
+                            InlineKeyboardButton("🚀 Join Auth Group", url=invite_link)
                         ]]),
                         reply_to_message_id=message.id
                     )
