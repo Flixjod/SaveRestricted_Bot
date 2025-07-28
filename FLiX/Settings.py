@@ -38,9 +38,7 @@ async def settings_command(client: Client, message: Message):
         return
 
     keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("📤 𝗦𝗲𝘁 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹", callback_data=f"set_thumbnail_{user_id}")],
-        [InlineKeyboardButton("🗑 𝗥𝗲𝗺𝗼𝘃𝗲 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹", callback_data=f"remove_thumbnail_{user_id}"),
-         InlineKeyboardButton("📷 𝗩𝗶𝗲𝘄 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹", callback_data=f"view_thumbnail_{user_id}")],
+        [InlineKeyboardButton("🖼️ 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹", callback_data=f"thumbnail_{user_id}")],
         [InlineKeyboardButton("🪄 𝗠𝗮𝗴𝗶𝗰 𝗪𝗼𝗿𝗱𝘀", callback_data=f"custom_words_{user_id}")],
         [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"back_to_start_{user_id}")]
     ])
@@ -49,14 +47,13 @@ async def settings_command(client: Client, message: Message):
             chat_id=message.chat.id,
             text=(
                 f"✨ 𝗛𝗲𝘆 {message.from_user.mention}!\n\n"
-                "🔧 𝗪𝗲𝗹𝗰𝗼𝗺𝗲 𝘁𝗼 𝘆𝗼𝘂𝗿 𝗣𝗲𝗿𝘀𝗼𝗻𝗮𝗹 𝗦𝗲𝘁𝘁𝗶𝗻𝗴𝘀!\n"
-                "Now, let’s make this bot 𝘆𝗼𝘂𝗿𝘀! 🌟\n\n"
-                "🖼️ 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹 𝗠𝗮𝗻𝗮𝗴𝗲𝗺𝗲𝗻𝘁:\n"
-                "   • 📤  𝗦𝗲𝘁 𝗮 𝗰𝘂𝘀𝘁𝗼𝗺 𝘁𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹\n"
-                "   • 🗑️  𝗥𝗲𝗺𝗼𝘃𝗲 𝗶𝘁 𝗮𝗻𝘆 𝘁𝗶𝗺𝗲\n"
-                "   • 📷  𝗩𝗶𝗲𝘄 𝘆𝗼𝘂𝗿 𝗰𝘂𝗿𝗿𝗲𝗻𝘁 𝘁𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹\n\n"
+                "🔧 𝗪𝗲𝗹𝗰𝗼𝗺𝗲 𝘁𝗼 𝘆𝗼𝘂𝗿 𝗣𝗲𝗿𝘀𝗼𝗻𝗮𝗹 𝗦𝗲𝘁𝘁𝗶𝗻𝗴𝘀 𝗣𝗮𝗻𝗲𝗹!\n"
+                "𝗖𝘂𝘀𝘁𝗼𝗺𝗶𝘇𝗲 𝘁𝗵𝗲 𝗯𝗼𝘁 𝘁𝗼 𝘀𝘂𝗶𝘁 𝘆𝗼𝘂𝗿 𝘀𝘁𝘆𝗹𝗲. 🌟\n\n"
+                "**🔘 𝗣𝗹𝗲𝗮𝘀𝗲 𝗰𝗵𝗼𝗼𝘀𝗲 𝗮𝗻 𝗼𝗽𝘁𝗶𝗼𝗻 𝗯𝗲𝗹𝗼𝘄:**\n\n"
+                "🖼️ 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹:\n"
+                "   • 📤 𝗦𝗲𝘁 / 🗑️ 𝗥𝗲𝗺𝗼𝘃𝗲 / 📷 𝗩𝗶𝗲𝘄 𝘁𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹\n\n"
                 "🪄 𝗠𝗮𝗴𝗶𝗰 𝗪𝗼𝗿𝗱𝘀:\n"
-                "   • 🔤 𝗖𝘂𝘀𝘁𝗼𝗺𝗶𝘇𝗲 𝘆𝗼𝘂𝗿 𝗪𝗼𝗿𝗱 𝗥𝗲𝗽𝗹𝗮𝗰𝗲𝗺𝗲𝗻𝘁𝘀\n\n"
+                "   • 🔤 𝗖𝘂𝘀𝘁𝗼𝗺𝗶𝘇𝗲 𝘆𝗼𝘂𝗿 𝗪𝗼𝗿𝗱 𝗥𝗲𝗽𝗹𝗮𝗰𝗲𝗺𝗲𝗻𝘁𝘀\n"
             ),
             reply_markup=keyboard,
             reply_to_message_id=message.id
@@ -69,9 +66,7 @@ async def open_settings(client: Client, callback_query):
 
     user_id = callback_query.from_user.id
     keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("📤 𝗦𝗲𝘁 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹", callback_data=f"set_thumbnail_{user_id}")],
-        [InlineKeyboardButton("🗑 𝗥𝗲𝗺𝗼𝘃𝗲 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹", callback_data=f"remove_thumbnail_{user_id}"),
-         InlineKeyboardButton("📷 𝗩𝗶𝗲𝘄 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹", callback_data=f"view_thumbnail_{user_id}")],
+        [InlineKeyboardButton("🖼️ 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹", callback_data=f"thumbnail_{user_id}")],
         [InlineKeyboardButton("🪄 𝗠𝗮𝗴𝗶𝗰 𝗪𝗼𝗿𝗱𝘀", callback_data=f"custom_words_{user_id}")],
         [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"back_to_start_{user_id}")]
     ])
@@ -79,14 +74,43 @@ async def open_settings(client: Client, callback_query):
     await callback_query.message.edit_text(
         text=(
             f"✨ 𝗛𝗲𝘆 {callback_query.from_user.mention}!\n\n"
-            "🔧 𝗪𝗲𝗹𝗰𝗼𝗺𝗲 𝘁𝗼 𝘆𝗼𝘂𝗿 𝗣𝗲𝗿𝘀𝗼𝗻𝗮𝗹 𝗦𝗲𝘁𝘁𝗶𝗻𝗴𝘀!\n"
-            "Now, let’s make this bot 𝘆𝗼𝘂𝗿𝘀! 🌟\n\n"
-            "🖼️ 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹 𝗠𝗮𝗻𝗮𝗴𝗲𝗺𝗲𝗻𝘁:\n"
-            "   • 📤  𝗦𝗲𝘁 𝗮 𝗰𝘂𝘀𝘁𝗼𝗺 𝘁𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹\n"
-            "   • 🗑️  𝗥𝗲𝗺𝗼𝘃𝗲 𝗶𝘁 𝗮𝗻𝘆 𝘁𝗶𝗺𝗲\n"
-            "   • 📷  𝗩𝗶𝗲𝘄 𝘆𝗼𝘂𝗿 𝗰𝘂𝗿𝗿𝗲𝗻𝘁 𝘁𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹\n\n"
+            "🔧 𝗪𝗲𝗹𝗰𝗼𝗺𝗲 𝘁𝗼 𝘆𝗼𝘂𝗿 𝗣𝗲𝗿𝘀𝗼𝗻𝗮𝗹 𝗦𝗲𝘁𝘁𝗶𝗻𝗴𝘀 𝗣𝗮𝗻𝗲𝗹!\n"
+            "𝗖𝘂𝘀𝘁𝗼𝗺𝗶𝘇𝗲 𝘁𝗵𝗲 𝗯𝗼𝘁 𝘁𝗼 𝘀𝘂𝗶𝘁 𝘆𝗼𝘂𝗿 𝘀𝘁𝘆𝗹𝗲. 🌟\n\n"
+            "**🔘 𝗣𝗹𝗲𝗮𝘀𝗲 𝗰𝗵𝗼𝗼𝘀𝗲 𝗮𝗻 𝗼𝗽𝘁𝗶𝗼𝗻 𝗯𝗲𝗹𝗼𝘄:**\n\n"
+            "🖼️ 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹:\n"
+            "   • 📤 𝗦𝗲𝘁 / 🗑️ 𝗥𝗲𝗺𝗼𝘃𝗲 / 📷 𝗩𝗶𝗲𝘄 𝘁𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹\n\n"
             "🪄 𝗠𝗮𝗴𝗶𝗰 𝗪𝗼𝗿𝗱𝘀:\n"
-            "   • 🔤 𝗖𝘂𝘀𝘁𝗼𝗺𝗶𝘇𝗲 𝘆𝗼𝘂𝗿 𝗪𝗼𝗿𝗱 𝗥𝗲𝗽𝗹𝗮𝗰𝗲𝗺𝗲𝗻𝘁𝘀\n\n"
+            "   • 🔤 𝗖𝘂𝘀𝘁𝗼𝗺𝗶𝘇𝗲 𝘆𝗼𝘂𝗿 𝗪𝗼𝗿𝗱 𝗥𝗲𝗽𝗹𝗮𝗰𝗲𝗺𝗲𝗻𝘁𝘀\n"
+        ),
+        reply_markup=keyboard
+    )
+
+
+@Client.on_callback_query(filters.regex(r"^thumbnail_\d+$"), group=2)
+async def thumbnail(client: Client, callback_query):
+    if not await user_check(callback_query, int(callback_query.data.split("_")[-1])):
+        return
+
+    user_id = callback_query.from_user.id
+
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("📤 𝗦𝗲𝘁", callback_data=f"set_thumbnail_{user_id}")],
+        [
+            InlineKeyboardButton("🗑 𝗥𝗲𝗺𝗼𝘃𝗲", callback_data=f"remove_thumbnail_{user_id}"),
+            InlineKeyboardButton("📷 𝗩𝗶𝗲𝘄", callback_data=f"view_thumbnail_{user_id}")
+        ],
+        [InlineKeyboardButton("🔙 𝗕𝗮𝗰𝗸", callback_data=f"back_to_start_{user_id}")]
+    ])
+
+    await callback_query.message.edit_text(
+        text=(
+            f"✨ 𝗛𝗲𝘆 {callback_query.from_user.mention}!\n\n"
+            "🖼️ 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹 𝗠𝗮𝗻𝗮𝗴𝗲𝗺𝗲𝗻𝘁 𝗣𝗮𝗻𝗲𝗹:\n"
+            "𝗛𝗲𝗿𝗲 𝘆𝗼𝘂 𝗰𝗮𝗻 𝗺𝗮𝗻𝗮𝗴𝗲 𝘆𝗼𝘂𝗿 𝗰𝘂𝘀𝘁𝗼𝗺 𝘁𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹:\n\n"
+            "   • 📤 𝗨𝗽𝗹𝗼𝗮𝗱 𝗮 𝗻𝗲𝘄 𝘁𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹\n"
+            "   • 📷 𝗣𝗿𝗲𝘃𝗶𝗲𝘄 𝘆𝗼𝘂𝗿 𝗰𝘂𝗿𝗿𝗲𝗻𝘁 𝗼𝗻𝗲\n"
+            "   • 🗑️ 𝗥𝗲𝗺𝗼𝘃𝗲 𝗶𝘁 𝗮𝗻𝘆𝘁𝗶𝗺𝗲\n\n"
+            "🪄 𝗖𝘂𝘀𝘁𝗼𝗺𝗶𝘇𝗲 𝗮𝗻𝗱 𝗽𝗲𝗿𝘀𝗼𝗻𝗮𝗹𝗶𝘇𝗲 𝘁𝗵𝗲 𝗯𝗼𝘁 𝘁𝗼 𝗳𝗶𝘁 𝘆𝗼𝘂𝗿 𝘀𝘁𝘆𝗹𝗲!"
         ),
         reply_markup=keyboard
     )
@@ -146,7 +170,7 @@ async def set_thumbnail_prompt(client: Client, callback_query):
         await prompt.edit_text(
             "✅ **Thumbnail has been set successfully!**",
             reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("ʙᴀᴄᴋ", callback_data=f"open_settings_{user_id}")]
+                [InlineKeyboardButton("ʙᴀᴄᴋ", callback_data=f"thumbnail_{user_id}")]
             ])
         )
 
@@ -179,7 +203,7 @@ async def remove_thumbnail(client: Client, callback_query):
     await callback_query.message.edit_text(
         "✅ **Your thumbnail has been removed successfully.**",
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("ʙᴀᴄᴋ", callback_data=f"open_settings_{user_id}")]
+            [InlineKeyboardButton("ʙᴀᴄᴋ", callback_data=f"thumbnail_{user_id}")]
         ])
     )
 
