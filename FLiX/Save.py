@@ -550,7 +550,11 @@ async def save(client: Client, message: Message):
         if user_info.get('active_batch', False):
             await client.send_message(
                 chat_id=message.chat.id,
-                text="**❌ Active Batch Detected!**\n\nPlease wait until it finishes or stop it using /stop.",
+                text=(
+                    "🚫 **Oops! You’ve Got an Active Batch Running!**\n\n"
+                    "🔄 Please wait for it to finish **or** stop it using /stop.\n\n"
+                    "⚠️ Running multiple batches at once isn't supported."
+                ),
                 reply_to_message_id=message.id
             )
             return
