@@ -522,7 +522,7 @@ async def save(client: Client, message: Message):
                             "👇 Click the button below to join:"
                         ),
                         reply_markup=InlineKeyboardMarkup([[
-                            InlineKeyboardButton("🚀 Join Auth Group", url=invite_link)
+                            InlineKeyboardButton("🚀 𝗝𝗼𝗶𝗻 𝗔𝘂𝘁𝗵 𝗚𝗿𝗼𝘂𝗽", url=invite_link)
                         ]]),
                         reply_to_message_id=message.id
                     )
