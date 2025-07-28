@@ -614,8 +614,7 @@ async def save(client: Client, message: Message):
 
             if total_msg > 1:
                 await progress_msg.edit_text(
-                    f"🔄 **Batch Mode Started**\nfrom `{fromID} to `{toID}`\n\n"
-                    f"**Now Processing: {msgid}**"
+                    f"🔄 **Batch Mode Started**\nfrom `{fromID}` to `{toID}`\n\n**Now Processing: {msgid}**"
                 )
             
             # Private
