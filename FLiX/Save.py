@@ -705,10 +705,10 @@ async def save(client: Client, message: Message):
                     break
                     
                 try:
-                    user_data = await database.users.find_one({'user_id': message.from_user.id})
                     settings = user_data.get('settings', {}) if user_data else {}
                     custom_thumb = settings.get('thumbnail')
                     word_replacements = settings.get('word_replacements', {}) or {}
+                    upload_chat_id = settings.get("custom_upload_chat", message.chat.id)
 
                     #Thumbnail
                     if custom_thumb and os.path.exists(custom_thumb):
@@ -723,7 +723,7 @@ async def save(client: Client, message: Message):
                             caption = re.sub(re.escape(old), new, caption, flags=re.IGNORECASE)
 
                     await client.copy_message(
-                        message.chat.id,
+                        upload_chat_id,
                         msg.chat.id,
                         msg.id,
                         caption=caption,  
@@ -817,6 +817,13 @@ async def handle_private(client: Client, acc, message: Message, chatid, msgid: i
     file = None
     thumb_path = None
 
+    # Settings
+    user_data = await database.users.find_one({'user_id': message.from_user.id})
+    settings = user_data.get('settings', {}) if user_data else {}
+    custom_thumb = settings.get('thumbnail', None)
+    word_replacements = settings.get('word_replacements', {}) or {}
+    upload_chat_id = settings.get('custom_upload_chat', chat)
+
     if msg_type == "Unknown":
         await client.send_message(
             chat,
@@ -828,17 +835,11 @@ async def handle_private(client: Client, acc, message: Message, chatid, msgid: i
 
     if msg_type == "Text":
         try:
-            await client.send_message(chat, msg.text, entities=msg.entities, reply_to_message_id=message.id)
+            await client.send_message(upload_chat_id, msg.text, entities=msg.entities, reply_to_message_id=message.id)
         except Exception as e:
             await client.send_message(chat, f"Error: {e}", reply_to_message_id=message.id)
             await database.users.update_one({'user_id': message.from_user.id}, {'$set': {'last_download_time': None}})
         return
-
-    # Settings
-    user_data = await database.users.find_one({'user_id': message.from_user.id})
-    settings = user_data.get('settings', {}) if user_data else {}
-    custom_thumb = settings.get('thumbnail', None)
-    word_replacements = settings.get('word_replacements', {}) or {}
 
     filename, file_size = get_file_info(msg, message)
     for old_word, new_word in word_replacements.items():
@@ -932,7 +933,7 @@ async def handle_private(client: Client, acc, message: Message, chatid, msgid: i
 
         elif msg_type == "Video":
             dm = await client.send_video(
-                chat, file,
+                upload_chat_id, file,
                 duration=msg.video.duration,
                 width=msg.video.width,
                 height=msg.video.height,
@@ -940,16 +941,16 @@ async def handle_private(client: Client, acc, message: Message, chatid, msgid: i
             )
 
         elif msg_type == "Sticker":
-            await client.send_sticker(chat, msg.sticker.file_id, reply_to_message_id=message.id)
+            await client.send_sticker(upload_chat_id, msg.sticker.file_id, reply_to_message_id=message.id)
 
         elif msg_type == "Voice":
-            await client.send_voice(chat, file, **kwargs)
+            await client.send_voice(upload_chat_id, file, **kwargs)
 
         elif msg_type == "Audio":
-            await client.send_audio(chat, file, **kwargs)
+            await client.send_audio(upload_chat_id, file, **kwargs)
 
         elif msg_type == "Photo":
-            await client.send_photo(chat, file, **kwargs)
+            await client.send_photo(upload_chat_id, file, **kwargs)
 
         if msg_type in ["Document", "Video"]:
             dm_tag = await dm.copy(DUMP_CHAT_ID)
