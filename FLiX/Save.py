@@ -865,7 +865,7 @@ async def handle_private(client: Client, acc, message: Message, chatid, msgid: i
             file = await acc.download_media(msg, file_name=filename, progress=progress, progress_args=[message, "down"])
             if not file:
                 raise ValueError("Downloaded file is missing or invalid.")
-            task.cancel()
+            dosta.cancel()
 
         except asyncio.CancelledError:
             was_cancelled = True
