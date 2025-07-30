@@ -795,6 +795,12 @@ async def save(client: Client, message: Message):
 
 # handle private
 async def handle_private(client: Client, acc, message: Message, chatid, msgid: int):
+    chat = message.chat.id
+    dosta = None
+    upsta = None
+    file = None
+    thumb_path = None
+
     smsg = await client.send_message(chat, "ꜰᴇᴛᴄʜɪɴɢ ʏᴏᴜʀ ᴄᴏɴᴛᴇɴᴛ 😈", reply_to_message_id=message.id)
 
     try:
@@ -813,11 +819,6 @@ async def handle_private(client: Client, acc, message: Message, chatid, msgid: i
         return
 
     msg_type = get_message_type(msg)
-    chat = message.chat.id
-    dosta = None
-    upsta = None
-    file = None
-    thumb_path = None
 
     # Settings
     user_data = await database.users.find_one({'user_id': message.from_user.id})
