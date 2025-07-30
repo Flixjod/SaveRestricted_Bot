@@ -6,6 +6,7 @@ import os, re, asyncio
 from PIL import Image
 
 from pyrogram import Client, filters
+from pyrogram.enums import ChatMemberStatus
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, ForceReply
 
 from database.db import database
@@ -44,22 +45,22 @@ async def settings_command(client: Client, message: Message):
     ])
 
     await client.send_message(
-            chat_id=message.chat.id,
-            text=(
-                f"✨ 𝗛𝗲𝘆 {message.from_user.mention}!\n\n"
-                "🔧 𝗪𝗲𝗹𝗰𝗼𝗺𝗲 𝘁𝗼 𝘆𝗼𝘂𝗿 𝗣𝗲𝗿𝘀𝗼𝗻𝗮𝗹 𝗦𝗲𝘁𝘁𝗶𝗻𝗴𝘀 𝗣𝗮𝗻𝗲𝗹!\n"
-                "𝗖𝘂𝘀𝘁𝗼𝗺𝗶𝘇𝗲 𝘁𝗵𝗲 𝗯𝗼𝘁 𝘁𝗼 𝘀𝘂𝗶𝘁 𝘆𝗼𝘂𝗿 𝘀𝘁𝘆𝗹𝗲. 🌟\n\n"
-                "**🔘 𝗣𝗹𝗲𝗮𝘀𝗲 𝗰𝗵𝗼𝗼𝘀𝗲 𝗮𝗻 𝗼𝗽𝘁𝗶𝗼𝗻 𝗯𝗲𝗹𝗼𝘄:**\n\n"
-                "🖼️ 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹:\n"
-                "   • 𝗖𝘂𝘀𝘁𝗼𝗺𝗶𝘇𝗲𝗬𝗼𝘂𝗿 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹\n\n"
-                "🪄 𝗠𝗮𝗴𝗶𝗰 𝗪𝗼𝗿𝗱𝘀:\n"
-                "   • 𝗖𝘂𝘀𝘁𝗼𝗺𝗶𝘇𝗲 𝘆𝗼𝘂𝗿 𝗪𝗼𝗿𝗱 𝗥𝗲𝗽𝗹𝗮𝗰𝗲𝗺𝗲𝗻𝘁𝘀\n\n"
-                "📨 𝗖𝘂𝘀𝘁𝗼𝗺 𝗖𝗵𝗮𝘁 𝗜𝗗:\n"
-                "   • 𝗠𝗮𝗻𝗮𝗴𝗲 𝗬𝗼𝘂𝗿 𝗖𝘂𝘀𝘁𝗼𝗺 𝗖𝗵𝗮𝘁 𝗜𝗗\n"
-            ),
-            reply_markup=keyboard,
-            reply_to_message_id=message.id
-        )
+        chat_id=message.chat.id,
+        text=(
+            f"✨ 𝗛𝗲𝘆 {message.from_user.mention}!\n\n"
+            "🎛 𝗣𝗲𝗿𝘀𝗼𝗻𝗮𝗹 𝗦𝗲𝘁𝘁𝗶𝗻𝗴𝘀 𝗣𝗮𝗻𝗲𝗹\n"
+            "𝗧𝘄𝗲𝗮𝗸 𝘁𝗵𝗲 𝗯𝗼𝘁 𝘁𝗼 𝗳𝗶𝘁 𝘆𝗼𝘂𝗿 𝘀𝘁𝘆𝗹𝗲 💫\n\n"
+            "🔘 𝗖𝗵𝗼𝗼𝘀𝗲 𝗮𝗻 𝗼𝗽𝘁𝗶𝗼𝗻 𝗯𝗲𝗹𝗼𝘄:\n\n"
+            "🖼️ 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹\n"
+            "   • 𝗨𝗽𝗹𝗼𝗮𝗱 / 𝗥𝗲𝗺𝗼𝘃𝗲 𝘆𝗼𝘂𝗿 𝗰𝘂𝘀𝘁𝗼𝗺 𝘁𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹\n\n"
+            "🪄 𝗠𝗮𝗴𝗶𝗰 𝗪𝗼𝗿𝗱𝘀\n"
+            "   • 𝗦𝗲𝘁 𝗿𝗲𝗽𝗹𝗮𝗰𝗲𝗺𝗲𝗻𝘁 𝗽𝗮𝘁𝘁𝗲𝗿𝗻𝘀 (𝗲.𝗴. `S01E01 ➝ 1x01`)\n\n"
+            "📨 𝗖𝘂𝘀𝘁𝗼𝗺 𝗖𝗵𝗮𝘁 𝗜𝗗\n"
+            "   • 𝗖𝗵𝗼𝗼𝘀𝗲 𝗮 𝗴𝗿𝗼𝘂𝗽/𝗰𝗵𝗮𝗻𝗻𝗲𝗹 𝗳𝗼𝗿 𝗳𝗶𝗹𝗲 𝗱𝗲𝗹𝗶𝘃𝗲𝗿𝘆\n"
+        ),
+        reply_markup=keyboard,
+        reply_to_message_id=message.id
+    )
 
 @Client.on_callback_query(filters.regex(r"^open_settings_\d+$"), group=2)
 async def open_settings(client: Client, callback_query):
@@ -77,15 +78,15 @@ async def open_settings(client: Client, callback_query):
     await callback_query.message.edit_text(
         text=(
             f"✨ 𝗛𝗲𝘆 {callback_query.from_user.mention}!\n\n"
-            "🔧 𝗪𝗲𝗹𝗰𝗼𝗺𝗲 𝘁𝗼 𝘆𝗼𝘂𝗿 𝗣𝗲𝗿𝘀𝗼𝗻𝗮𝗹 𝗦𝗲𝘁𝘁𝗶𝗻𝗴𝘀 𝗣𝗮𝗻𝗲𝗹!\n"
-            "𝗖𝘂𝘀𝘁𝗼𝗺𝗶𝘇𝗲 𝘁𝗵𝗲 𝗯𝗼𝘁 𝘁𝗼 𝘀𝘂𝗶𝘁 𝘆𝗼𝘂𝗿 𝘀𝘁𝘆𝗹𝗲. 🌟\n\n"
-            "**🔘 𝗣𝗹𝗲𝗮𝘀𝗲 𝗰𝗵𝗼𝗼𝘀𝗲 𝗮𝗻 𝗼𝗽𝘁𝗶𝗼𝗻 𝗯𝗲𝗹𝗼𝘄:**\n\n"
-            "🖼️ 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹:\n"
-            "   • 𝗖𝘂𝘀𝘁𝗼𝗺𝗶𝘇𝗲 𝗬𝗼𝘂𝗿 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹\n\n"
-            "🪄 𝗠𝗮𝗴𝗶𝗰 𝗪𝗼𝗿𝗱𝘀:\n"
-            "   • 𝗖𝘂𝘀𝘁𝗼𝗺𝗶𝘇𝗲 𝘆𝗼𝘂𝗿 𝗪𝗼𝗿𝗱 𝗥𝗲𝗽𝗹𝗮𝗰𝗲𝗺𝗲𝗻𝘁𝘀\n\n"
-            "📨 𝗖𝘂𝘀𝘁𝗼𝗺 𝗖𝗵𝗮𝘁 𝗜𝗗:\n"
-            "   • 𝗠𝗮𝗻𝗮𝗴𝗲 𝗬𝗼𝘂𝗿 𝗖𝘂𝘀𝘁𝗼𝗺 𝗖𝗵𝗮𝘁 𝗜𝗗\n\n"
+            "🎛 𝗬𝗼𝘂𝗿 𝗣𝗲𝗿𝘀𝗼𝗻𝗮𝗹 𝗦𝗲𝘁𝘁𝗶𝗻𝗴𝘀 𝗛𝘂𝗯\n"
+            "𝗖𝘂𝘀𝘁𝗼𝗺𝗶𝘇𝗲 𝘁𝗵𝗲 𝗯𝗼𝘁 𝗲𝘅𝗮𝗰𝘁𝗹𝘆 𝗵𝗼𝘄 𝘆𝗼𝘂 𝗹𝗶𝗸𝗲 💎\n\n"
+            "🔘 𝗣𝗶𝗰𝗸 𝗮 𝘀𝗲𝘁𝘁𝗶𝗻𝗴 𝘁𝗼 𝗲𝗱𝗶𝘁:\n\n"
+            "🖼️ 𝗧𝗵𝘂𝗺𝗯𝗻𝗮𝗶𝗹\n"
+            "   • 𝗦𝗲𝘁 𝗮 𝗽𝗲𝗿𝘀𝗼𝗻𝗮𝗹 𝗽𝗿𝗲𝘃𝗶𝗲𝘄 𝗶𝗺𝗮𝗴𝗲\n\n"
+            "🪄 **𝗠𝗮𝗴𝗶𝗰 𝗪𝗼𝗿𝗱𝘀**\n"
+            "   • 𝗘𝗻𝗮𝗯𝗹𝗲 𝗼𝗿 𝗰𝗵𝗮𝗻𝗴𝗲 𝗮𝘂𝘁𝗼 𝗿𝗲𝗽𝗹𝗮𝗰𝗲𝗺𝗲𝗻𝘁𝘀\n\n"
+            "📨 𝗖𝘂𝘀𝘁𝗼𝗺 𝗖𝗵𝗮𝘁 𝗜𝗗\n"
+            "   • 𝗖𝗵𝗼𝗼𝘀𝗲 𝗮 𝗴𝗿𝗼𝘂𝗽/𝗰𝗵𝗮𝗻𝗻𝗲𝗹 𝗳𝗼𝗿 𝗳𝗶𝗹𝗲 𝗱𝗲𝗹𝗶𝘃𝗲𝗿𝘆\n"
         ),
         reply_markup=keyboard
     )
@@ -530,11 +531,6 @@ async def clear_custom_words(client: Client, callback_query):
 
 
 # Custom Chat ID
-from pyrogram.enums import ChatMemberStatus
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-import asyncio
-
-
 @Client.on_callback_query(filters.regex(r"^custom_chatid_(menu|view|set|remove)_\d+$"), group=2)
 async def custom_chatid_handler(client, callback_query):
     action, user_id = callback_query.data.split("_")[2], int(callback_query.data.split("_")[-1])
@@ -544,29 +540,31 @@ async def custom_chatid_handler(client, callback_query):
     if not await user_check(callback_query, user_id):
         return
 
-    user_data = await database.users.find_one({'user_id': from_user})
-    settings = user_data.get('settings', {}) if user_data else {}
+    user_data = await database.users.find_one({'user_id': from_user}) or {}
+    settings = user_data.get('settings', {})
 
-    # 📂 Main Panel
+    def back_btn():
+        return InlineKeyboardMarkup([[InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"custom_chatid_menu_{user_id}")]])
+
+    # 🌐 Main Menu
     if action == "menu":
         keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton("➕ 𝗦𝗲𝘁 𝗖𝗵𝗮𝘁 𝗜𝗗", callback_data=f"custom_chatid_set_{user_id}")],
             [
-                InlineKeyboardButton("➖ 𝗥𝗲𝗺𝗼𝘃𝗲", callback_data=f"custom_chatid_remove_{user_id}"),
-                InlineKeyboardButton("📖 𝗩𝗶𝗲𝘄", callback_data=f"custom_chatid_view_{user_id}")
+                InlineKeyboardButton("🗑 𝗥𝗲𝗺𝗼𝘃𝗲", callback_data=f"custom_chatid_remove_{user_id}"),
+                InlineKeyboardButton("👁 𝗩𝗶𝗲𝘄", callback_data=f"custom_chatid_view_{user_id}")
             ],
-            [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"open_settings_{user_id}")]
+            [InlineKeyboardButton("⬅️ 𝗚𝗼 𝗕𝗮𝗰𝗸", callback_data=f"open_settings_{user_id}")]
         ])
-
         await callback_query.message.edit_text(
-            f"✨ 𝗛𝗲𝘆 {callback_query.from_user.mention}!\n\n"
-            "🛠️ **Chat ID Management Panel:**\n"
-            "Customize where your bot delivers files or outputs!\n\n"
-            "💡 **What you can do:**\n"
-            "   • ➕ Set a custom Chat ID (group/channel)\n"
-            "   • 👁 View saved destination\n"
-            "   • 🗑 Remove the saved ID anytime\n\n"
-            "📝 Tip: Forward a message from the chat or reply with its numeric ID.",
+            f"🌟 **Welcome to Your Custom Destination Panel, {callback_query.from_user.mention}!**\n\n"
+            "🎯 **Why use a Custom Chat ID?**\n"
+            "Set a personal destination (group/channel) where your files will be delivered!\n\n"
+            "✨ **Here’s what you can do:**\n"
+            "   ├ 📥 Set a custom delivery chat\n"
+            "   ├ 👁 Preview the saved destination\n"
+            "   └ 🗑 Remove the current ID\n\n"
+            "📝 **Tip:** Forward a message from the chat or reply with its numeric ID.\n",
             reply_markup=keyboard
         )
         return
@@ -575,63 +573,44 @@ async def custom_chatid_handler(client, callback_query):
     if action == "view":
         saved_id = settings.get("custom_chat_id")
         if not saved_id:
-            await callback_query.message.edit_text(
-                "🚫 **No Chat ID is currently set.**",
-                reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"custom_chatid_menu_{user_id}")]
-                ])
-            )
+            await callback_query.message.edit_text("⚠️ **No Chat ID is currently set.**", reply_markup=back_btn())
             return
-
         try:
             chat = await client.get_chat(saved_id)
             title = chat.title or "N/A"
-            username = f"@{chat.username}" if chat.username else "None"
+            username = f"@{chat.username}" if chat.username else "❌ Not Public"
 
             await callback_query.message.edit_text(
-                f"👁 **Saved Chat ID Details:**\n\n"
-                f"• 🏷 **Title:** {title}\n"
+                f"🔍 **Your Current Destination:**\n\n"
+                f"• 🏷 **Title:** `{title}`\n"
                 f"• 🆔 **Chat ID:** `{saved_id}`\n"
-                f"• 🔗 **Username:** {username}",
-                reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"custom_chatid_menu_{user_id}")]
-                ])
+                f"• 🌐 **Username:** {username}",
+                reply_markup=back_btn()
             )
         except Exception:
             await callback_query.message.edit_text(
-                f"⚠️ **Failed to retrieve details for** `{saved_id}`.\n"
-                "It might be private, deleted, or I'm no longer in it.",
-                reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"custom_chatid_menu_{user_id}")]
-                ])
+                f"🚫 **Unable to fetch details for** `{saved_id}`.\n"
+                "Maybe the chat is private, deleted, or the bot was removed.",
+                reply_markup=back_btn()
             )
         return
 
     # 🗑 Remove
     if action == "remove":
         if not settings.get("custom_chat_id"):
-            await callback_query.answer("🚫 No Chat ID is set.", show_alert=True)
+            await callback_query.answer("⚠️ No custom Chat ID is set yet!", show_alert=True)
             return
-
-        await database.users.update_one({'user_id': from_user}, {'$unset': {'settings.chat_id': None}})
-        await callback_query.message.edit_text(
-            "✅ **Chat ID has been removed successfully.**",
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"custom_chatid_menu_{user_id}")]
-            ])
-        )
+        await database.users.update_one({'user_id': from_user}, {'$unset': {'settings.custom_chat_id': ""}})
+        await callback_query.message.edit_text("✅ **Your custom Chat ID has been successfully removed.**", reply_markup=back_btn())
         return
 
     # ➕ Set
     if action == "set":
-        await callback_query.answer("📨 Waiting for input...")
+        await callback_query.answer("📨 Awaiting your response...")
         prompt = await callback_query.message.edit_text(
-            "**📤 Reply with a Chat ID or forward a message from the target group/channel.**",
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"custom_chatid_menu_{user_id}")]
-            ])
+            "📩 **Please reply with a numeric Chat ID or forward a message from the target group/channel.**",
+            reply_markup=back_btn()
         )
-
         try:
             response = await client.wait_for_message(
                 chat_id=chat_id,
@@ -646,31 +625,28 @@ async def custom_chatid_handler(client, callback_query):
                 target_chat_id = int(response.text.strip())
 
             if not target_chat_id:
-                await response.reply("❌ **Invalid input.** Try forwarding a message or sending the chat ID.")
+                await response.reply("❌ **Invalid input.** Please send a valid Chat ID or forward a message.")
                 return
 
-            # 🔐 Bot Admin Check
+            # Check if bot is admin
             try:
                 member = await client.get_chat_member(target_chat_id, "me")
                 if member.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
-                    raise ValueError("Bot is not an admin")
+                    raise Exception("Not an admin")
             except Exception:
                 await prompt.edit_text(
-                    "❌ **I must be an admin in the chat to save it!**\n\n"
-                    "🧾 Ensure the following:\n"
-                    "• The bot is added\n"
-                    "• It has admin rights\n"
-                    "• You sent a valid chat reference",
-                    reply_markup=InlineKeyboardMarkup([
-                        [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"custom_chatid_menu_{user_id}")]
-                    ])
+                    "🚫 **Bot must be an admin in that chat!**\n\n"
+                    "🔐 **Make sure of the following:**\n"
+                    "• The bot is added to that group/channel\n"
+                    "• It has **admin privileges**\n"
+                    "• You forwarded a valid message or entered a correct ID",
+                    reply_markup=back_btn()
                 )
                 return
 
-            # ✅ Save
             chat = await client.get_chat(target_chat_id)
             title = chat.title or "N/A"
-            username = f"@{chat.username}" if chat.username else "None"
+            username = f"@{chat.username}" if chat.username else "❌ Not Public"
 
             await database.users.update_one(
                 {'user_id': from_user},
@@ -679,17 +655,15 @@ async def custom_chatid_handler(client, callback_query):
             )
 
             await prompt.edit_text(
-                f"✅ **Chat ID has been saved!**\n\n"
-                f"• 🏷 **Title:** {title}\n"
-                f"• 🆔 **ID:** `{target_chat_id}`\n"
-                f"• 🔗 **Username:** {username}",
-                reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"custom_chatid_menu_{user_id}")]
-                ])
+                f"✅ **Custom Chat ID Saved Successfully!**\n\n"
+                f"• 🏷 **Chat Title:** `{title}`\n"
+                f"• 🆔 **Chat ID:** `{target_chat_id}`\n"
+                f"• 🌐 **Username:** {username}",
+                reply_markup=back_btn()
             )
 
         except asyncio.TimeoutError:
-            await prompt.edit_text("⌛ **Timeout! No response received. Please try again.**")
+            await prompt.edit_text("⌛ **Timeout! No reply received within 60 seconds. Please try again.**", reply_markup=back_btn())
 
 
 # Back To Start Callback
