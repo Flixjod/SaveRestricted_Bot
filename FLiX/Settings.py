@@ -11,7 +11,6 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, 
 from database.db import database
 
 
-
 # Setting
 @Client.on_message(filters.command("settings"), group=2)
 async def settings_command(client: Client, message: Message):
@@ -556,7 +555,7 @@ async def custom_chatid_handler(client, callback_query):
                 InlineKeyboardButton("➖ 𝗥𝗲𝗺𝗼𝘃𝗲", callback_data=f"custom_chatid_remove_{user_id}"),
                 InlineKeyboardButton("📖 𝗩𝗶𝗲𝘄", callback_data=f"custom_chatid_view_{user_id}")
             ],
-            [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"open_settings__{user_id}")]
+            [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"open_settings_{user_id}")]
         ])
 
         await callback_query.message.edit_text(
