@@ -176,7 +176,7 @@ async def set_thumbnail_prompt(client: Client, callback_query):
         await prompt.edit_text(
             "✅ **Thumbnail has been set successfully!**",
             reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("ʙᴀᴄᴋ", callback_data=f"thumbnail_{user_id}")]
+                [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"thumbnail_{user_id}")]
             ])
         )
 
@@ -209,7 +209,7 @@ async def remove_thumbnail(client: Client, callback_query):
     await callback_query.message.edit_text(
         "✅ **Your thumbnail has been removed successfully.**",
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("ʙᴀᴄᴋ", callback_data=f"thumbnail_{user_id}")]
+            [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"thumbnail_{user_id}")]
         ])
     )
 
@@ -432,7 +432,7 @@ async def remove_custom_words(client: Client, callback_query):
             "⚠️ **Oops! No magic words to remove.**\n\n"
             "*Start building your list by adding some!*",
             reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("🔙 𝗕𝗮𝗰𝗸", callback_data=f"custom_words_{user_id}")]
+                [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"custom_words_{user_id}")]
             ])
         )
         return
@@ -449,7 +449,7 @@ async def remove_custom_words(client: Client, callback_query):
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton(str(idx+1), callback_data=f"delete_word_{idx}_{user_id}")]
         for idx in range(len(words_list))
-    ] + [[InlineKeyboardButton("🔙 Back", callback_data=f"custom_words_{user_id}")]])
+    ] + [[InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"custom_words_{user_id}")]])
 
     await callback_query.message.edit_text(replacement_text, reply_markup=keyboard)
 
@@ -500,7 +500,7 @@ async def delete_specific_word(client: Client, callback_query):
             await callback_query.message.edit_text(
                 "🧹 **All Magic Words Rules Removed!**\nYou're back to plain speech.",
                 reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("🔙 𝗕𝗮𝗰𝗸", callback_data=f"custom_words_{user_id}")]
+                    [InlineKeyboardButton("🔙 ʙᴀᴄᴋ", callback_data=f"custom_words_{user_id}")]
                 ])
             )
     else:
