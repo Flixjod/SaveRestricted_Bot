@@ -795,6 +795,8 @@ async def save(client: Client, message: Message):
 
 # handle private
 async def handle_private(client: Client, acc, message: Message, chatid, msgid: int):
+    smsg = await client.send_message(chat, "ꜰᴇᴛᴄʜɪɴɢ ʏᴏᴜʀ ᴄᴏɴᴛᴇɴᴛ 😈", reply_to_message_id=message.id)
+
     try:
         msg: Message = await acc.get_messages(chatid, msgid)
         if not msg or msg.empty:
@@ -839,6 +841,8 @@ async def handle_private(client: Client, acc, message: Message, chatid, msgid: i
         except Exception as e:
             await client.send_message(chat, f"Error: {e}", reply_to_message_id=message.id)
             await database.users.update_one({'user_id': message.from_user.id}, {'$set': {'last_download_time': None}})
+        if smsg:
+            await smsg.delete()
         return
 
     filename, file_size = get_file_info(msg, message)
@@ -849,7 +853,7 @@ async def handle_private(client: Client, acc, message: Message, chatid, msgid: i
             filename = re.sub(re.escape(old_word), new_word, filename, flags=re.IGNORECASE)
 
     # Download Media
-    smsg = await client.send_message(chat, "ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ ʏᴏᴜʀ ꜰɪʟᴇꜱ 😈", reply_to_message_id=message.id)
+    await smsg.edit("ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ ʏᴏᴜʀ ꜰɪʟᴇꜱ 😈")
     dosta = asyncio.create_task(
         show_progress(client, f"{message.id}downstatus.txt", smsg, filename, post_link, file_size, message.from_user, mode="down")
     )
