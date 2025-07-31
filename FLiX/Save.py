@@ -770,7 +770,11 @@ async def save(client: Client, message: Message):
                         await database.users.update_one({'user_id': message.from_user.id}, {'$set': {'last_download_time': None}})
 
             # wait time
-            await asyncio.sleep(2.5)
+            if is_free_user:
+                await asyncio.sleep(2.5)
+            else:
+                await asyncio.sleep(1)
+
 
         if is_free_user:
             await update_last_download_time(message.from_user.id)
