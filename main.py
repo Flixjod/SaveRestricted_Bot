@@ -68,7 +68,7 @@ class Bot(Client):
             BotCommand("id", "🆔 𝗖𝗵𝗲𝗰𝗸 𝗬𝗼𝘂𝗿 𝗖𝗵𝗮𝘁 𝗜𝗗"),
             BotCommand("myplan", "📈 𝗖𝗵𝗲𝗰𝗸 𝗬𝗼𝘂𝗿 𝗣𝗹𝗮𝗻"),
             BotCommand("buy", "🛒 𝗩𝗶𝗲𝘄 𝗣𝗿𝗲𝗺𝗶𝘂𝗺 𝗣𝗹𝗮𝗻𝘀"),
-            BotCommand("token", "🎁 𝗚𝗲𝘁 𝗙𝗿𝗲𝗲 𝗣𝗿𝗲𝗺𝗶𝘂𝗺"),
+            BotCommand("token", "🎁 𝗚𝗲𝗻𝗲𝗿𝗮𝘁𝗲 𝗧𝗼𝗸𝗲𝗻 & 𝗩𝗲𝗿𝗶𝗳𝘆 𝗙𝗼𝗿 𝗣𝗿𝗲𝗺𝗶𝘂𝗺"),
             BotCommand("stop", "⏹️ 𝗦𝘁𝗼𝗽 𝗢𝗻𝗴𝗼𝗶𝗻𝗴 𝗕𝗮𝘁𝗰𝗵"),
             BotCommand("tutorial", "📱 𝗦𝘁𝗲𝗽 𝗕𝘆 𝗦𝗲𝘁𝗽 𝗚𝘂𝗶𝗱𝗲"),
             BotCommand("settings", "⚙️ 𝗢𝗽𝗲𝗻 𝗬𝗼𝘂𝗿 𝗣𝗲𝗿𝘀𝗼𝗻𝗮𝗹 𝗦𝗲𝘁𝘁𝗶𝗻𝗴𝘀")
